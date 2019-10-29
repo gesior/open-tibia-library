@@ -10,7 +10,6 @@ export class SpriteManager {
     public static SPRITE_SIZE = 32;
     public static SPRITE_DATA_SIZE = SpriteManager.SPRITE_SIZE * SpriteManager.SPRITE_SIZE * 4;
 
-    m_loaded = false;
     m_signature = 0;
     m_spritesCount = 0;
     m_spritesOffset = 0;
@@ -29,14 +28,12 @@ export class SpriteManager {
     loadSpr(fin: InputFile): boolean {
         this.m_spritesCount = 0;
         this.m_signature = 0;
-        this.m_loaded = false;
         try {
             this.m_spritesFile = fin;
 
             this.m_signature = this.m_spritesFile.getU32();
             this.m_spritesCount = this.m_client.getFeature(GameFeature.GameSpritesU32) ? this.m_spritesFile.getU32() : this.m_spritesFile.getU16();
             this.m_spritesOffset = this.m_spritesFile.tell();
-            this.m_loaded = true;
             return true;
         } catch (e) {
             Log.error("Failed to load sprites: %s", e);

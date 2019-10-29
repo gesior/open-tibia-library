@@ -495,6 +495,10 @@ export class DatThingType {
         return this.m_spritesIndex;
     }
 
+    getSprite(index: number): number {
+        return this.m_spritesIndex[index];
+    }
+
     isNotPreWalkable(): boolean {
         return this.m_attribs.has(DatThingAttr.ThingAttrNotPreWalkable);
     }
@@ -542,7 +546,6 @@ export class DatThingType {
     }
 
     getSpriteIndex(w: number, h: number, l: number, x: number, y: number, z: number, a: number): number {
-
         let index =
             ((((((a % this.m_animationPhases)
                 * this.m_numPatternZ + z)

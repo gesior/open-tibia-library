@@ -7,17 +7,13 @@ import {OutputFile} from "../fileHandlers/outputFile";
 import {Client} from "../client";
 import {sortObjectByKey} from "../constants/helpers";
 
-let nullThingType = new DatThingType();
-
 export class DatManager {
-    m_nullThingType = new DatThingType();
-    m_thingTypes: DatThingType[][] = null;
-    m_datLoaded: boolean = false;
-    m_datSignature: number = 0;
-    m_contentRevision: number = 0;
+    private static m_nullThingType = new DatThingType();
+    private readonly m_thingTypes: DatThingType[][] = [];
+    private m_datSignature: number = 0;
+    private m_contentRevision: number = 0;
 
     constructor(public m_client: Client) {
-        this.m_thingTypes = [];
         for (let i = DatThingCategory.ThingCategoryItem; i < DatThingCategory.ThingLastCategory; ++i) {
             this.m_thingTypes[i] = [];
         }
@@ -26,13 +22,33 @@ export class DatManager {
     getThingType(id: number, category: DatThingCategory): DatThingType {
         if (category >= DatThingCategory.ThingLastCategory || id >= this.m_thingTypes[category].length) {
             Log.error("invalid thing type client id %d in category %d", id, category);
-            return this.m_nullThingType;
+            return DatManager.m_nullThingType;
         }
         return this.m_thingTypes[category][id];
     }
 
-    rawGetThingType(id: number, category: DatThingCategory): any {
-        return this.getThingType(id, category);
+    getThingTypes() {
+        return this.m_thingTypes;
+    }
+
+    getCategory(category: DatThingCategory) {
+        return this.m_thingTypes[category];
+    }
+
+    getItem(id: number) {
+        return this.getThingType(id, DatThingCategory.ThingCategoryItem);
+    }
+
+    getOutfit(id: number) {
+        return this.getThingType(id, DatThingCategory.ThingCategoryCreature);
+    }
+
+    getEffect(id: number) {
+        return this.getThingType(id, DatThingCategory.ThingCategoryEffect);
+    }
+
+    getMissile(id: number) {
+        return this.getThingType(id, DatThingCategory.ThingCategoryMissile);
     }
 
     isValidDatId(id: number, category: DatThingCategory): boolean {
@@ -40,10 +56,14 @@ export class DatManager {
     }
 
     getNullThingType(): DatThingType {
-        return nullThingType;
+        return DatManager.m_nullThingType;
     }
 
-    getContentRevision(): any {
+    getDatSignature() {
+        throw this.m_datSignature;
+    }
+
+    getContentRevision() {
         throw this.m_contentRevision;
     }
 
@@ -53,7 +73,6 @@ export class DatManager {
     }
 
     loadDat(fin: InputFile): boolean {
-        this.m_datLoaded = false;
         this.m_datSignature = 0;
         this.m_contentRevision = 0;
         try {
@@ -64,7 +83,7 @@ export class DatManager {
                 let count = fin.getU16() + 1;
                 this.m_thingTypes[category] = [];
                 for (let thingCount = 0; thingCount < count; ++thingCount) {
-                    this.m_thingTypes[category][thingCount] = nullThingType;
+                    this.m_thingTypes[category][thingCount] = DatManager.m_nullThingType;
                 }
             }
 
@@ -80,10 +99,7 @@ export class DatManager {
                 }
             }
 
-            this.m_datLoaded = true;
             return true;
-
-
         } catch (e) {
             Log.error("Failed to read dat: %s'", e);
             return false;
@@ -91,9 +107,6 @@ export class DatManager {
     }
 
     saveDat(): OutputFile {
-        if (!this.m_datLoaded)
-            throw new Error("Failed to save, dat is not loaded");
-
         const fin = new OutputFile();
         fin.addU32(this.m_datSignature);
 

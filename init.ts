@@ -36,11 +36,11 @@ async function test() {
     });
 
     // get client ID of item 2400 (magic sword in items.xml)
-    let magicSwordClientId = otbManager.m_itemTypes[2400].getClientId();
+    let magicSwordClientId = otbManager.getItem(2400).getClientId();
     // get data from '.dat' about that item
-    let magicSwordThingType = datManager.getThingType(magicSwordClientId, DatThingCategory.ThingCategoryItem);
+    let magicSwordThingType = datManager.getItem(magicSwordClientId);
     // get first sprite [image] of that item
-    let firstMagicSwordSprite = magicSwordThingType.getSprites()[0];
+    let firstMagicSwordSprite = magicSwordThingType.getSprite(0);
     // get image from .spr file
     let firstImagePixelsData = spriteManager.getSpriteImage(firstMagicSwordSprite);
     // draw image in webbrowser with Canvas on position 0, 0

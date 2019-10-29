@@ -109,26 +109,28 @@ export class OtbItemType {
                     if (m_otbManager.m_client.getClientVersion() < 960) {
                         if (serverId > 20000 && serverId < 20100) {
                             serverId -= 20000;
-                        } else if (m_otbManager.m_lastId > 99 && m_otbManager.m_lastId != serverId - 1) {
-                            while (m_otbManager.m_lastId != serverId - 1) {
+                        } else if (m_otbManager.getLastId() > 99 && m_otbManager.getLastId() != serverId - 1) {
+                            while (m_otbManager.getLastId() != serverId - 1) {
                                 let tmp = new OtbItemType();
-                                tmp.setServerId(m_otbManager.m_lastId++);
+                                tmp.setServerId(m_otbManager.getLastId());
+                                m_otbManager.increaseLastId();
                                 m_otbManager.addItemType(tmp);
                             }
                         }
                     } else {
                         if (serverId > 30000 && serverId < 30100) {
                             serverId -= 30000;
-                        } else if (m_otbManager.m_lastId > 99 && m_otbManager.m_lastId != serverId - 1) {
-                            while (m_otbManager.m_lastId != serverId - 1) {
+                        } else if (m_otbManager.getLastId() > 99 && m_otbManager.getLastId() != serverId - 1) {
+                            while (m_otbManager.getLastId() != serverId - 1) {
                                 let tmp = new OtbItemType();
-                                tmp.setServerId(m_otbManager.m_lastId++);
+                                tmp.setServerId(m_otbManager.getLastId());
+                                m_otbManager.increaseLastId();
                                 m_otbManager.addItemType(tmp);
                             }
                         }
                     }
                     this.setServerId(serverId);
-                    m_otbManager.m_lastId = serverId;
+                    m_otbManager.setLastId(serverId);
                     break;
                 }
                 case OtbItemTypeAttr.ItemTypeAttrClientId:

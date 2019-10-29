@@ -7,10 +7,9 @@ import {OutputFile} from "../fileHandlers/outputFile";
 import {OutputBinaryTree} from "../fileHandlers/outputBinaryTree";
 
 export class OtbManager {
-    m_lastId = 99;
-    m_itemTypes: OtbItemType[] = [];
-    m_reverseItemTypes: OtbItemType[] = [];
-    private m_otbLoaded: boolean = false;
+    private m_lastId = 99;
+    private m_itemTypes: OtbItemType[] = [];
+    private m_reverseItemTypes: OtbItemType[] = [];
     private m_otbMajorVersion: number = 0;
     private m_otbMinorVersion: number = 0;
     private m_otbBuildVersion: number = 0;
@@ -23,8 +22,24 @@ export class OtbManager {
         return this.m_itemTypes[id];
     }
 
+    getItemByClientId(id: number) {
+        return this.m_reverseItemTypes[id];
+    }
+
     isValidOtbId(id: number): boolean {
         return this.m_itemTypes[id] !== undefined;
+    }
+
+    getLastId() {
+        return this.m_lastId;
+    }
+
+    setLastId(value: number) {
+        this.m_lastId = value;
+    }
+
+    increaseLastId() {
+        this.setLastId(this.getLastId() + 1);
     }
 
     getMajorVersion() {
