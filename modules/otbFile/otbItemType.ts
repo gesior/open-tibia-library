@@ -41,14 +41,28 @@ export class OtbItemType {
                     node.addU16(this.m_attribs.get(attr));
                     break;
                 case OtbItemTypeAttr.ItemTypeAttrName:
-                    // len?
                     node.addString(this.m_attribs.get(attr));
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttrSpeed:
+                    node.addU16(2);
+                    node.addU16(this.m_attribs.get(attr));
                     break;
                 case OtbItemTypeAttr.ItemTypeAttrWritable:
                     node.addU16(1);
                     node.addU8(this.m_attribs.get(attr));
                     break;
-                case OtbItemTypeAttr.ItemTypeAttrSpeed:
+                case OtbItemTypeAttr.ItemTypeAttrSpriteHash:
+                    node.addString(this.m_attribs.get(attr));
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttrMinimapColor:
+                    node.addU16(2);
+                    node.addU16(this.m_attribs.get(attr));
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttr07:
+                    node.addU16(2);
+                    node.addU16(this.m_attribs.get(attr));
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttr08:
                     node.addU16(2);
                     node.addU16(this.m_attribs.get(attr));
                     break;
@@ -123,11 +137,23 @@ export class OtbItemType {
                 case OtbItemTypeAttr.ItemTypeAttrName:
                     this.setName(node.getString(len));
                     break;
+                case OtbItemTypeAttr.ItemTypeAttrSpeed:
+                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttrSpeed, node.getU16());
+                    break;
                 case OtbItemTypeAttr.ItemTypeAttrWritable:
                     this.setWritable(true);
                     break;
-                case OtbItemTypeAttr.ItemTypeAttrSpeed:
-                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttrSpeed, node.getU16());
+                case OtbItemTypeAttr.ItemTypeAttrSpriteHash:
+                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttrSpriteHash, node.getString(len));
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttrMinimapColor:
+                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttrMinimapColor, node.getU16());
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttr07:
+                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttr07, node.getU16());
+                    break;
+                case OtbItemTypeAttr.ItemTypeAttr08:
+                    this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttr08, node.getU16());
                     break;
                 case OtbItemTypeAttr.ItemTypeAttrLight2:
                     this.m_attribs.set(OtbItemTypeAttr.ItemTypeAttrLight2, new Light(node.getU16(), node.getU16()));
