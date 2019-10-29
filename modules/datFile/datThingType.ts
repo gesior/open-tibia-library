@@ -4,7 +4,7 @@ import {InputFile} from "../fileHandlers/inputFile";
 import {error} from "../log";
 import {Animator} from "./animator";
 import {Color} from "../structures/color";
-import {DatThingTypeAttribs} from "./datThingTypeAttribs";
+import {DatThingTypeAttributes} from "./datThingTypeAttributes";
 import {Size} from "../structures/size";
 import {Point} from "../structures/point";
 import {MarketData} from "../structures/marketData";
@@ -17,7 +17,7 @@ export class DatThingType {
     m_category: DatThingCategory;
     m_id: number = 0;
     m_null: boolean = true;
-    m_attribs: DatThingTypeAttribs = new DatThingTypeAttribs();
+    m_attribs: DatThingTypeAttributes = new DatThingTypeAttributes();
 
     m_size: Size = new Size();
     m_displacement: Point = new Point();
@@ -131,9 +131,6 @@ export class DatThingType {
                     if (client.getClientVersion() >= 755) {
                         this.m_displacement.x = fin.getU16();
                         this.m_displacement.y = fin.getU16();
-                        if (this.m_id == 293) {
-                            console.log(this.m_displacement);
-                        }
                     } else {
                         this.m_displacement.x = 8;
                         this.m_displacement.y = 8;

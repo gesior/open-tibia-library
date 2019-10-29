@@ -2,10 +2,14 @@ import {Position} from "../structures/position";
 
 export class DataBuffer {
     m_size = 0;
-    m_buffer;
+    m_buffer : DataView;
 
     constructor(public m_capacity: number = 64) {
         this.m_buffer = new DataView(new ArrayBuffer(this.m_capacity));
+    }
+
+    getUint8Array() : Uint8Array {
+        return new Uint8Array(this.m_buffer.buffer, 0, this.size());
     }
 
     reserve(newSize: number) {

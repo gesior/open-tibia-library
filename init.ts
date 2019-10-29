@@ -53,17 +53,22 @@ async function test() {
         otbManager: otbManager,
         spriteManager: spriteManager
     };
+    console.log('Generated dat file', datManager.saveDat());
+    console.log('Generated otb file', otbManager.saveOtb());
     console.log('All data loaded. You can access it variable "d".')
 }
 
+
 test();
 /*
-download ArrayBuffer:
+download OTB:
+
+otbFile = otbManager.saveOtb();
 a = document.createElement('a');
- url = window.URL.createObjectURL(new Blob(new Array(k)));
-     a.href = url;
-      a.download = 'a.txt';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
+url = window.URL.createObjectURL(new Blob(new Array(otbFile.getUint8Array())));
+a.href = url;
+a.download = 'items.otb';
+a.click();
+window.URL.revokeObjectURL(url);
+a.remove();
  */

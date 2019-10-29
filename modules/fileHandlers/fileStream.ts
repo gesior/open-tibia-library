@@ -3,8 +3,12 @@ import {BinaryTree} from "./binaryTree";
 import {DataBuffer} from "./dataBuffer";
 
 export abstract class FileStream {
-    protected data: DataBuffer;
+    public data: DataBuffer;
     protected offset: number;
+
+    getUint8Array() : Uint8Array {
+        return this.data.getUint8Array();
+    }
 
     getU8(): number {
         const v = this.data.getU8(this.offset);

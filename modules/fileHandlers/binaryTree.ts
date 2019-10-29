@@ -1,6 +1,5 @@
 import {DataBuffer} from "./dataBuffer";
-import {InputFile} from "./inputFile";
-import {Point} from "../structures/point";
+import {FileStream} from "./fileStream";
 
 export class BinaryTree {
     static BINARYTREE_ESCAPE_CHAR = 0xFD;
@@ -11,7 +10,7 @@ export class BinaryTree {
     m_buffer: DataBuffer;
     m_startPos = 0;
 
-    constructor(protected m_fin: InputFile) {
+    constructor(protected m_fin: FileStream) {
         this.m_buffer = new DataBuffer();
         this.m_startPos = this.m_fin.tell();
     }
@@ -50,6 +49,7 @@ export class BinaryTree {
                 }
                 case BinaryTree.BINARYTREE_NODE_END:
                     this.m_pos = 0;
+                    // console.log(this.m_buffer);
                     return;
                 case BinaryTree.BINARYTREE_ESCAPE_CHAR:
                     this.m_buffer.addU8(this.m_fin.getU8());
@@ -130,7 +130,7 @@ export class BinaryTree {
             throw new Error("BinaryTree: getString failed: string length exceeded buffer size.");
 
         let text = '';
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < len; i++) {
             text += String.fromCharCode(this.getU8());
         }
         return text;

@@ -1,7 +1,8 @@
 import {DataBuffer} from "./dataBuffer";
-import {InputFile} from "./inputFile";
 import {Point} from "../structures/point";
 import {BinaryTree} from "./binaryTree";
+import {OutputFile} from "./outputFile";
+import {toInt} from "../constants/helpers";
 
 /**
  * In OutputBinaryTree we got to add BINARYTREE_ESCAPE_CHAR before every special character.
@@ -16,7 +17,7 @@ export class OutputBinaryTree extends BinaryTree {
     m_buffer: DataBuffer;
     m_startPos = 0;
 
-    constructor(protected m_fin: InputFile) {
+    constructor(protected m_fin: OutputFile) {
         super(m_fin);
         this.startNode(0);
     }
@@ -27,41 +28,44 @@ export class OutputBinaryTree extends BinaryTree {
         if (value == BinaryTree.BINARYTREE_NODE_START ||
             value === BinaryTree.BINARYTREE_NODE_END ||
             value === BinaryTree.BINARYTREE_ESCAPE_CHAR) {
-            this.m_buffer.addU8(BinaryTree.BINARYTREE_ESCAPE_CHAR);
+            this.m_fin.addU8(BinaryTree.BINARYTREE_ESCAPE_CHAR);
         }
 
-        this.m_buffer.addU8(value);
+        this.m_fin.addU8(value);
     }
 
     addU16(value: number) {
         value = value % 65536;
-        const b2 = value / 256;
-        value -= b2;
+        const b2 = Math.floor(value / 256);
+        value -= b2 * 256;
         const b1 = value;
 
-        this.m_buffer.addU8(b1);
-        this.m_buffer.addU8(b2);
+        this.addU8(b1);
+        this.addU8(b2);
     }
 
     addU32(value: number) {
         value = value % 4294967296;
-        const b4 = value / 16777216;
-        value -= b4;
-        const b3 = value / 65536;
-        value -= b3;
-        const b2 = value / 256;
-        value -= b2;
+        const b4 = Math.floor(value / 16777216);
+        value -= b4 * 16777216;
+        const b3 = Math.floor(value / 65536);
+        value -= b3 * 65536;
+        const b2 = Math.floor(value / 256);
+        value -= b2 * 256;
         const b1 = value;
 
-        this.m_buffer.addU8(b1);
-        this.m_buffer.addU8(b2);
-        this.m_buffer.addU8(b3);
-        this.m_buffer.addU8(b4);
+        this.addU8(b1);
+        this.addU8(b2);
+        this.addU8(b3);
+        this.addU8(b4);
     }
 
-    addString(value: string) {
-        this.addU16(value.length);
-        for (let i = 0; i < value.length; i++) {
+    addString(value: string, length: number = -1) {
+        if (length === -1) {
+            this.addU16(value.length);
+            length = value.length;
+        }
+        for (let i = 0; i < length; i++) {
             this.addU8(value.charCodeAt(i));
         }
     }
@@ -78,12 +82,14 @@ export class OutputBinaryTree extends BinaryTree {
     }
 
     startNode(node: number) {
-        this.m_buffer.addU8(BinaryTree.BINARYTREE_NODE_START);
-        this.addU8(node);
+        this.m_fin.addU8(BinaryTree.BINARYTREE_NODE_START);
+        if (node !== -1) {
+            this.addU8(node);
+        }
     }
 
     endNode() {
-        this.m_buffer.addU8(BinaryTree.BINARYTREE_NODE_END);
+        this.m_fin.addU8(BinaryTree.BINARYTREE_NODE_END);
     }
 
 }

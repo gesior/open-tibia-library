@@ -1,6 +1,6 @@
 import {DatThingAttr} from "../constants/const";
 
-export class DatThingTypeAttribs {
+export class DatThingTypeAttributes {
     public attribs = {};
 
     has(attr: DatThingAttr) {

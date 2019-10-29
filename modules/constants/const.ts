@@ -202,6 +202,36 @@ export enum OtbItemTypeAttr {
     ItemTypeAttrLast = 46
 }
 
+export enum OtbItemFlags {
+    FlagBlockSolid = 1 << 0,
+    FlagBlockProjectile = 1 << 1,
+    FlagBlockPathfind = 1 << 2,
+    FlagHasHeight = 1 << 3,
+    FlagUseable = 1 << 4,
+    FlagPickupable = 1 << 5,
+    FlagMoveable = 1 << 6,
+    FlagStackable = 1 << 7,
+    FlagFloorchangedown = 1 << 8, // unused
+    FlagFloorchangenorth = 1 << 9, // unused
+    FlagFloorchangeeast = 1 << 10, // unused
+    FlagFloorchangesouth = 1 << 11, // unused
+    FlagFloorchangewest = 1 << 12, // unused
+    FlagAlwaysontop = 1 << 13,
+    FlagReadable = 1 << 14,
+    FlagRotatable = 1 << 15,
+    FlagHangable = 1 << 16,
+    FlagVertical = 1 << 17,
+    FlagHorizontal = 1 << 18,
+    FlagCannotdecay = 1 << 19, // unused
+    FlagAllowdistread = 1 << 20,
+    FlagUnused = 1 << 21, // unused
+    FlagClientcharges = 1 << 22, // deprecated
+    FlagLookthrough = 1 << 23,
+    FlagAnimation = 1 << 24,
+    FlagFulltile = 1 << 25, // unused
+    FlagForceuse = 1 << 26,
+}
+
 export enum SpriteMask {
     SpriteMaskRed = 1,
     SpriteMaskGreen,
