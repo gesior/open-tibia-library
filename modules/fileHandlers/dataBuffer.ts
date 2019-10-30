@@ -1,4 +1,7 @@
 import {Position} from "../structures/position";
+import {Pixel} from "../sprFile/pixel";
+import {Client} from "../client";
+import {GameFeature} from "../constants/const";
 
 export class DataBuffer {
     m_size = 0;
@@ -83,6 +86,42 @@ export class DataBuffer {
         return 2 + value.length;
     }
 
+    addPixel(pixel: Pixel, bytesPerPixel: number) {
+        if (bytesPerPixel == 4) {
+            this.grow(this.m_size + 4);
+            this.m_buffer.setUint8(this.m_size - 4, pixel.r);
+            this.m_buffer.setUint8(this.m_size - 3, pixel.g);
+            this.m_buffer.setUint8(this.m_size - 2, pixel.b);
+            this.m_buffer.setUint8(this.m_size - 1, pixel.a);
+            return 4;
+        } else {
+            this.grow(this.m_size + 3);
+            this.m_buffer.setUint8(this.m_size - 3, pixel.r);
+            this.m_buffer.setUint8(this.m_size - 2, pixel.g);
+            this.m_buffer.setUint8(this.m_size - 1, pixel.b);
+            return 3;
+        }
+    }
+
+    setU8(offset:  number, value: number) {
+        this.grow(offset + 1);
+        this.m_buffer.setUint8(offset, value);
+    }
+
+    setU32(offset:  number, value: number) {
+        this.grow(offset + 4);
+        this.m_buffer.setInt32(offset - 4, value, true);
+    }
+
+    setPixel(offset: number, pixel: Pixel, bytesPerPixel: number) {
+        this.setU8(offset, pixel.r);
+        this.setU8(offset+1, pixel.g);
+        this.setU8(offset+2, pixel.b);
+        if (bytesPerPixel == 4) {
+            this.setU8(offset+3, pixel.a);
+        }
+    }
+
     getU8(offset) {
         if (offset + 1 > this.size())
             throw new Error("DataBuffer: getU8 failed");
@@ -158,8 +197,22 @@ export class DataBuffer {
         return new Position(this.getU16(offset), this.getU16(offset + 2), this.getU8(offset + 4));
     }
 
+    getRgbaPixel(offset: number): Pixel {
+        offset = offset * 4;
+        if (offset + 4 > this.size())
+            throw new Error("DataBuffer: readPixel failed");
+
+        return new Pixel(this.getU8(offset), this.getU8(offset + 1), this.getU8(offset + 2), this.getU8(offset + 3));
+    }
+
     size() {
         return this.m_size;
+    }
+
+    clear() {
+        this.m_size = 0;
+        this.m_capacity = 64;
+        this.m_buffer = new DataView(new ArrayBuffer(this.m_capacity));
     }
 
 }

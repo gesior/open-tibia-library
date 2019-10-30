@@ -2,7 +2,7 @@ import {Client} from "./modules/client";
 import {DatManager} from "./modules/datFile/datManager";
 import {OtbManager} from "./modules/otbFile/otbManager";
 import {SpriteManager} from "./modules/sprFile/spriteManager";
-import {DatThingCategory} from "./modules/constants/const";
+import {DatThingCategory, GameFeature} from "./modules/constants/const";
 import {Sprite} from "./modules/sprFile/sprite";
 
 const canvas = <HTMLCanvasElement>document.getElementById('view');
@@ -10,7 +10,7 @@ const ctx = canvas.getContext("2d");
 
 function drawImage(sprite: Sprite, x, y) {
     const palette = ctx.getImageData(x, y, sprite.getWidth(), sprite.getHeight());
-    palette.data.set(new Uint8ClampedArray(sprite.getPixels()));
+    palette.data.set(new Uint8ClampedArray(sprite.getPixels().m_buffer.buffer));
     ctx.putImageData(palette, x, y);
 }
 
@@ -42,7 +42,7 @@ async function test() {
     // get first sprite [image] of that item
     let firstMagicSwordSprite = magicSwordThingType.getSprite(0);
     // get image from .spr file
-    let firstImagePixelsData = spriteManager.getSpriteImage(firstMagicSwordSprite);
+    let firstImagePixelsData = spriteManager.getSprite(firstMagicSwordSprite);
     // draw image in webbrowser with Canvas on position 0, 0
     drawImage(firstImagePixelsData, 0, 0);
 
@@ -53,9 +53,11 @@ async function test() {
         otbManager: otbManager,
         spriteManager: spriteManager
     };
+
     console.log('Generated dat file', datManager.saveDat());
     console.log('Generated otb file', otbManager.saveOtb());
-    console.log('All data loaded. You can access it variable "d".')
+    console.log('Generated spr file', spriteManager.saveSpr());
+    console.log('All data loaded. You can access it by variable "d".')
 }
 
 

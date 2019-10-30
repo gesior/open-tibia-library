@@ -109,20 +109,12 @@ export abstract class FileStream {
         return this.data.size() - this.offset;
     }
 
-    getReadPos(): number {
+    tell(): number {
         return this.offset;
     }
 
-    setReadPos(offset: number) {
-        this.offset = offset;
-    }
-
-    tell(): number {
-        return this.getReadPos();
-    }
-
     seek(offset: number) {
-        this.setReadPos(offset);
+        this.offset = offset;
     }
 
 }
