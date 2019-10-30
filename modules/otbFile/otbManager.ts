@@ -7,6 +7,7 @@ import {OutputFile} from "../fileHandlers/outputFile";
 import {OutputBinaryTree} from "../fileHandlers/outputBinaryTree";
 
 export class OtbManager {
+    private m_loaded = false;
     private m_lastId = 99;
     private m_itemTypes: OtbItemType[] = [];
     private m_reverseItemTypes: OtbItemType[] = [];
@@ -93,6 +94,10 @@ export class OtbManager {
     }
 
     loadOtb(fin: InputFile): boolean {
+        if (this.m_loaded) {
+            throw new Error("OtbManager can load OTB only once");
+        }
+        this.m_loaded = true;
         try {
             let signature = fin.getU32();
             if (signature != 0)

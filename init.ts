@@ -4,6 +4,7 @@ import {OtbManager} from "./modules/otbFile/otbManager";
 import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {DatThingCategory, GameFeature} from "./modules/constants/const";
 import {Sprite} from "./modules/sprFile/sprite";
+import {InputFile} from "./modules/fileHandlers/inputFile";
 
 const canvas = <HTMLCanvasElement>document.getElementById('view');
 const ctx = canvas.getContext("2d");
@@ -14,7 +15,7 @@ function drawImage(sprite: Sprite, x, y) {
     ctx.putImageData(palette, x, y);
 }
 
-async function test() {
+async function testLoadFromUrlsAndDrawImage() {
     const client = new Client();
     client.setClientVersion(854);
 
@@ -60,8 +61,93 @@ async function test() {
     console.log('All data loaded. You can access it by variable "d".')
 }
 
+async function testFilePicker() {
+    const clientVersionInput = <HTMLInputElement>document.getElementById('clientversion');
+    const sprPicker = <HTMLInputElement>document.getElementById('spr');
+    const datPicker = <HTMLInputElement>document.getElementById('dat');
+    const otbPicker = <HTMLInputElement>document.getElementById('otb');
+    const itemIdInput = <HTMLInputElement>document.getElementById('itemid');
 
-test();
+    let client: Client;
+    let sprManager: SpriteManager;
+    let datManager: DatManager;
+    let otbManager: OtbManager;
+
+    let sprLoaded = false;
+    let datLoaded = false;
+    let otbLoaded = false;
+
+    function updateItemView(itemid) {
+        console.log(sprLoaded, datLoaded, otbLoaded, client, itemid, sprManager, datManager, otbManager);
+        if (sprLoaded && datLoaded && otbLoaded) {
+            try {
+                let magicSwordClientId = otbManager.getItem(itemid).getClientId();
+                let magicSwordThingType = datManager.getItem(magicSwordClientId);
+                let firstMagicSwordSprite = magicSwordThingType.getSprite(0);
+                let firstImagePixelsData = sprManager.getSprite(firstMagicSwordSprite);
+                drawImage(firstImagePixelsData, 0, 0);
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
+    clientVersionInput.onchange = function (event) {
+        let clientVersion = parseInt(clientVersionInput.value);
+        client = new Client();
+        client.setClientVersion(clientVersion);
+        sprPicker.onchange(null);
+        datPicker.onchange(null);
+        otbPicker.onchange(null);
+        updateItemView(parseInt(itemIdInput.value));
+    };
+    itemIdInput.onchange = function (event) {
+        updateItemView(parseInt(itemIdInput.value));
+    };
+
+    sprPicker.onchange = function (event) {
+        if (sprPicker.files.length > 0) {
+            sprLoaded = false;
+            sprManager = new SpriteManager(client);
+            const file = sprPicker.files[0];
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event: any) {
+                sprLoaded = sprManager.loadSpr(new InputFile(new DataView(event.target.result)));
+            }
+        }
+    };
+
+    datPicker.onchange = function (event) {
+        if (datPicker.files.length > 0) {
+            datLoaded = false;
+            datManager = new DatManager(client);
+            const file = datPicker.files[0];
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event: any) {
+                datLoaded = datManager.loadDat(new InputFile(new DataView(event.target.result)));
+            }
+        }
+    };
+
+    otbPicker.onchange = function (event) {
+        if (otbPicker.files.length > 0) {
+            otbLoaded = false;
+            otbManager = new OtbManager(client);
+            const file = otbPicker.files[0];
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event: any) {
+                otbLoaded = otbManager.loadOtb(new InputFile(new DataView(event.target.result)));
+            }
+        }
+    };
+}
+
+testLoadFromUrlsAndDrawImage();
+testFilePicker();
 /*
 download OTB:
 
