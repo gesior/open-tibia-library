@@ -1,17 +1,15 @@
 import {Position} from "../structures/position";
 import {Pixel} from "../sprFile/pixel";
-import {Client} from "../client";
-import {GameFeature} from "../constants/const";
 
 export class DataBuffer {
     m_size = 0;
-    m_buffer : DataView;
+    m_buffer: DataView;
 
     constructor(public m_capacity: number = 64) {
         this.m_buffer = new DataView(new ArrayBuffer(this.m_capacity));
     }
 
-    getUint8Array() : Uint8Array {
+    getUint8Array(): Uint8Array {
         return new Uint8Array(this.m_buffer.buffer, 0, this.size());
     }
 
@@ -103,23 +101,22 @@ export class DataBuffer {
         }
     }
 
-    setU8(offset:  number, value: number) {
+    setU8(offset: number, value: number) {
         this.grow(offset + 1);
         this.m_buffer.setUint8(offset, value);
     }
 
-    setU32(offset:  number, value: number) {
+    setU32(offset: number, value: number) {
         this.grow(offset + 4);
         this.m_buffer.setInt32(offset - 4, value, true);
     }
 
-    setPixel(offset: number, pixel: Pixel, bytesPerPixel: number) {
+    setRgbaPixel(offset: number, pixel: Pixel) {
+        offset = offset * 4;
         this.setU8(offset, pixel.r);
-        this.setU8(offset+1, pixel.g);
-        this.setU8(offset+2, pixel.b);
-        if (bytesPerPixel == 4) {
-            this.setU8(offset+3, pixel.a);
-        }
+        this.setU8(offset + 1, pixel.g);
+        this.setU8(offset + 2, pixel.b);
+        this.setU8(offset + 3, pixel.a);
     }
 
     getU8(offset) {
@@ -200,9 +197,13 @@ export class DataBuffer {
     getRgbaPixel(offset: number): Pixel {
         offset = offset * 4;
         if (offset + 4 > this.size())
-            throw new Error("DataBuffer: readPixel failed");
+            throw new Error("DataBuffer: getRgbaPixel failed");
 
         return new Pixel(this.getU8(offset), this.getU8(offset + 1), this.getU8(offset + 2), this.getU8(offset + 3));
+    }
+
+    reserveRgbaPixel(offset: number) {
+        this.grow(offset * 4 + 4);
     }
 
     size() {

@@ -21,6 +21,7 @@ export class Sprite {
             this.m_pixels = pixels;
         } else {
             this.m_pixels = new DataBuffer();
+            this.m_pixels.reserve(size.area() * 4);
         }
     }
 
@@ -29,11 +30,13 @@ export class Sprite {
         for (let p = 0; p < other.getPixelsCount(); ++p) {
             let x = toInt(p % other.getWidth());
             let y = toInt(p / other.getWidth());
-            let pos = ((dest.y + y) * toInt(this.m_size.width()) + (dest.x + x)) * 4;
+            let pos = ((dest.y + y) * toInt(this.m_size.width()) + (dest.x + x));
 
             const otherPixel = otherPixels.getRgbaPixel(p);
             if (otherPixel.a != 0) {
-                this.m_pixels.setPixel(p, otherPixel, 4);
+                this.m_pixels.setRgbaPixel(pos, otherPixel);
+            } else {
+                this.m_pixels.reserveRgbaPixel(pos);
             }
         }
     }
@@ -133,17 +136,17 @@ export class Sprite {
         let pixel = this.m_pixels.getRgbaPixel(read++);
         while (read < this.getPixelsCount()) {
             let transparentPixels = 0;
-            let coloredPixels : Pixel[] = [];
+            let coloredPixels: Pixel[] = [];
 
 
-            while(pixel.isTransparent()) {
+            while (pixel.isTransparent()) {
                 transparentPixels++;
                 if (read == this.getPixelsCount())
                     break;
                 pixel = this.m_pixels.getRgbaPixel(read++);
             }
 
-            while(!pixel.isTransparent()) {
+            while (!pixel.isTransparent()) {
                 coloredPixels.push(pixel);
                 if (read == this.getPixelsCount())
                     break;
@@ -153,7 +156,7 @@ export class Sprite {
             pixelsSprData.addU16(transparentPixels);
             pixelsSprData.addU16(coloredPixels.length);
 
-            for(let coloredPixel of coloredPixels) {
+            for (let coloredPixel of coloredPixels) {
                 pixelsSprData.addPixel(coloredPixel, bytesPerPixel)
             }
         }

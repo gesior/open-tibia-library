@@ -5,6 +5,9 @@ import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {DatThingCategory, GameFeature} from "./modules/constants/const";
 import {Sprite} from "./modules/sprFile/sprite";
 import {InputFile} from "./modules/fileHandlers/inputFile";
+import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
+import {Size} from "./modules/structures/size";
+import {Point} from "./modules/structures/point";
 
 const canvas = <HTMLCanvasElement>document.getElementById('view');
 const ctx = canvas.getContext("2d");
@@ -47,6 +50,15 @@ async function testLoadFromUrlsAndDrawImage() {
     // draw image in webbrowser with Canvas on position 0, 0
     drawImage(firstImagePixelsData, 0, 0);
 
+    const itemid = 2400;
+    const imageGenerator = new ImageGenerator(datManager, spriteManager, otbManager);
+    const itemSprite = imageGenerator.generateItemImageByServerId(itemid);
+    console.log('img', itemid, itemSprite);
+    drawImage(itemSprite, 32, 0);
+    const sprite = new Sprite(new Size(64,64));
+    sprite.blit(new Point(32, 32), firstImagePixelsData);
+    drawImage(sprite, 0, 0);
+
     // export to global scope for debuging
     window['d'] = {
         client: client,
@@ -55,9 +67,9 @@ async function testLoadFromUrlsAndDrawImage() {
         spriteManager: spriteManager
     };
 
-    console.log('Generated dat file', datManager.saveDat());
-    console.log('Generated otb file', otbManager.saveOtb());
-    console.log('Generated spr file', spriteManager.saveSpr());
+    // console.log('Generated dat file', datManager.saveDat());
+    // console.log('Generated otb file', otbManager.saveOtb());
+    // console.log('Generated spr file', spriteManager.saveSpr());
     console.log('All data loaded. You can access it by variable "d".')
 }
 
@@ -147,7 +159,7 @@ async function testFilePicker() {
 }
 
 testLoadFromUrlsAndDrawImage();
-testFilePicker();
+// testFilePicker();
 /*
 download OTB:
 

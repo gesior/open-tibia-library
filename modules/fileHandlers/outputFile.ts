@@ -37,20 +37,12 @@ export class OutputFile extends FileStream {
         this.offset += this.data.add32(value);
     }
 
-    addPixel(pixel: Pixel, bytesPerPixel: number) {
-        this.offset += this.data.addPixel(pixel, bytesPerPixel);
-    }
-
     setU8(offset: number, value: number) {
         this.data.setU8(offset, value);
     }
 
     setU32(offset: number, value: number) {
         this.data.setU32(offset, value);
-    }
-
-    setPixel(offset: number, pixel: Pixel, bytesPerPixel: number) {
-        this.data.setPixel(offset, pixel, bytesPerPixel);
     }
 
 }
