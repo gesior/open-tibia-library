@@ -1,15 +1,16 @@
-let webpack = require('webpack');
-let path = require('path');
+const webpack = require('webpack');
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 let babelOptions =  {
-  "presets": ["es2015", "stage-0"]
+  "presets": ["env"]
 };
 
 module.exports = {
   entry:
   {
     tests: ['babel-polyfill', './tests.ts'],
-    itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts'],
+    itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts']
   },
   output: {
     filename: '[name].js',
@@ -49,6 +50,9 @@ module.exports = {
         // creates a common vendor js file for libraries in node_modules
         return module.context && module.context.indexOf('node_modules') !== -1;
       }
-    })
+    }),
+    new CopyPlugin([
+      { from: './node_modules/gif.js/dist/gif.worker.js', to: 'gif.worker.js' },
+    ]),
   ]
-}
+};

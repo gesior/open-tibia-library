@@ -5,7 +5,8 @@ import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {InputFile} from "./modules/fileHandlers/inputFile";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
 
-declare var JSZip, GIF;
+let JSZip = require('jszip');
+let GIF = require('gif.js');
 
 class ItemImageGenerator {
     private clientVersionInput: HTMLInputElement;
@@ -203,7 +204,7 @@ class ItemImageGenerator {
                 quality: 10,
                 width: itemSprite.getWidth(),
                 height: itemSprite.getHeight(),
-                workerScript: './node_modules/gif.js/dist/gif.worker.js',
+                workerScript: './js/gif.worker.js',
                 transparent: 'rgba(0,0,0,0)'
             });
 
