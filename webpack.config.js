@@ -8,7 +8,8 @@ let babelOptions =  {
 module.exports = {
   entry:
   {
-    index: ['babel-polyfill', './init.ts']
+    tests: ['babel-polyfill', './tests.ts'],
+    itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts'],
   },
   output: {
     filename: '[name].js',

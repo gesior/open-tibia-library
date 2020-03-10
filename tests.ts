@@ -2,7 +2,6 @@ import {Client} from "./modules/client";
 import {DatManager} from "./modules/datFile/datManager";
 import {OtbManager} from "./modules/otbFile/otbManager";
 import {SpriteManager} from "./modules/sprFile/spriteManager";
-import {DatThingCategory, GameFeature} from "./modules/constants/const";
 import {Sprite} from "./modules/sprFile/sprite";
 import {InputFile} from "./modules/fileHandlers/inputFile";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
@@ -18,14 +17,14 @@ function drawImage(sprite: Sprite, x, y) {
     ctx.putImageData(palette, x, y);
 }
 
-async function testLoadFromUrlsAndDrawImage() {
+async function testGenerateAllItemImages() {
     const client = new Client();
-    client.setClientVersion(854);
+    client.setClientVersion(860);
 
-    const serverUrl = 'http://php70.sbg.best/prv/webclient/fronttypescript/';
+    const serverUrl = 'http://127.0.0.1/Tibia860/';
 
     const datManager = new DatManager(client);
-    await datManager.loadDatFromUrl(serverUrl + 'Kasteria.dat').then(datLoaded => {
+    await datManager.loadDatFromUrl(serverUrl + 'Tibia.dat').then(datLoaded => {
         console.log('loaded dat', datLoaded)
     });
 
@@ -35,7 +34,30 @@ async function testLoadFromUrlsAndDrawImage() {
     });
 
     const spriteManager = new SpriteManager(client);
-    await spriteManager.loadSprFromUrl(serverUrl + 'Kasteria.spr').then(sprLoaded => {
+    await spriteManager.loadSprFromUrl(serverUrl + 'Tibia.spr').then(sprLoaded => {
+        console.log('loaded spr', sprLoaded)
+    });
+
+}
+
+async function testLoadFromUrlsAndDrawImage() {
+    const client = new Client();
+    client.setClientVersion(860);
+
+    const serverUrl = 'http://127.0.0.1/Tibia860/';
+
+    const datManager = new DatManager(client);
+    await datManager.loadDatFromUrl(serverUrl + 'Tibia.dat').then(datLoaded => {
+        console.log('loaded dat', datLoaded)
+    });
+
+    const otbManager = new OtbManager(client);
+    await otbManager.loadOtbFromUrl(serverUrl + 'items.otb').then(otbLoaded => {
+        console.log('loaded otb', otbLoaded)
+    });
+
+    const spriteManager = new SpriteManager(client);
+    await spriteManager.loadSprFromUrl(serverUrl + 'Tibia.spr').then(sprLoaded => {
         console.log('loaded spr', sprLoaded)
     });
 
@@ -53,9 +75,9 @@ async function testLoadFromUrlsAndDrawImage() {
     const itemid = 2400;
     const imageGenerator = new ImageGenerator(datManager, spriteManager, otbManager);
     const itemSprite = imageGenerator.generateItemImageByServerId(itemid);
-    console.log('img', itemid, itemSprite);
+
     drawImage(itemSprite, 32, 0);
-    const sprite = new Sprite(new Size(64,64));
+    const sprite = new Sprite(new Size(64, 64));
     sprite.blit(new Point(32, 32), firstImagePixelsData);
     drawImage(sprite, 0, 0);
 
@@ -158,7 +180,8 @@ async function testFilePicker() {
     };
 }
 
-testLoadFromUrlsAndDrawImage();
+testGenerateAllItemImages();
+// testLoadFromUrlsAndDrawImage();
 // testFilePicker();
 /*
 download OTB:

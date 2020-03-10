@@ -1,10 +1,12 @@
 {
   "name": "open-tibia-library",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "OpenTibiaLibrary",
   "main": "init.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch"
   },
   "author": "Gesior.pl (Jerzy Skalski)",
   "license": "MIT",
@@ -25,5 +27,10 @@
     "webpack": "^3.12.0",
     "webpack-cli": "^3.3.9"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@types/node": "*",
+    "@types/jszip": "*",
+    "gif.js": "^0.2.0",
+    "jszip": "^3.2.2"
+  }
 }
