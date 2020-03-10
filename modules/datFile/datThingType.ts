@@ -1,4 +1,4 @@
-import {FrameGroupType, GameFeature, DatThingAttr, DatThingCategory} from "../constants/const";
+import {DatThingAttr, DatThingCategory, FrameGroupType, GameFeature} from "../constants/const";
 import {Client} from "../client";
 import {InputFile} from "../fileHandlers/inputFile";
 import {error} from "../log";
@@ -190,43 +190,81 @@ export class DatThingType {
             if (hasFrameGroups)
                 frameGroupType = fin.getU8();
 
-            let width = fin.getU8();
-            let height = fin.getU8();
-            this.m_size = new Size(width, height);
-            if (width > 1 || height > 1) {
-                this.m_realSize = fin.getU8();
-                this.m_exactSize = Math.min(this.m_realSize, Math.max(width * 32, height * 32));
-            } else
-                this.m_exactSize = 32;
+            // TODO: load IDLE and MOVING frames
+            if (groupCount == 1 || frameGroupType == FrameGroupType.FrameGroupMoving) {
+                let width = fin.getU8();
+                let height = fin.getU8();
+                this.m_size = new Size(width, height);
+                if (width > 1 || height > 1) {
+                    this.m_realSize = fin.getU8();
+                    this.m_exactSize = Math.min(this.m_realSize, Math.max(width * 32, height * 32));
+                } else
+                    this.m_exactSize = 32;
 
-            this.m_layers = fin.getU8();
-            this.m_numPatternX = fin.getU8();
-            this.m_numPatternY = fin.getU8();
-            if (client.getClientVersion() >= 755)
-                this.m_numPatternZ = fin.getU8();
-            else
-                this.m_numPatternZ = 1;
+                this.m_layers = fin.getU8();
+                this.m_numPatternX = fin.getU8();
+                this.m_numPatternY = fin.getU8();
+                if (client.getClientVersion() >= 755)
+                    this.m_numPatternZ = fin.getU8();
+                else
+                    this.m_numPatternZ = 1;
 
-            let groupAnimationsPhases = fin.getU8();
-            this.m_animationPhases += groupAnimationsPhases;
+                let groupAnimationsPhases = fin.getU8();
+                this.m_animationPhases = groupAnimationsPhases;
 
-            if (groupAnimationsPhases > 1 && client.getFeature(GameFeature.GameEnhancedAnimations)) {
-                this.m_animator = new Animator();
-                this.m_animator.unserialize(groupAnimationsPhases, fin);
+                if (groupAnimationsPhases > 1 && client.getFeature(GameFeature.GameEnhancedAnimations)) {
+                    this.m_animator = new Animator();
+                    this.m_animator.unserialize(groupAnimationsPhases, fin);
+                }
+
+                let totalSprites = this.m_size.area() * this.m_layers * this.m_numPatternX * this.m_numPatternY * this.m_numPatternZ * groupAnimationsPhases;
+
+                if ((totalSpritesCount + totalSprites) > 4096)
+                    error("a thing type has more than 4096 sprites", totalSprites, totalSpritesCount, this.m_size.area(), this.m_layers, this.m_numPatternX, this.m_numPatternY, this.m_numPatternZ, groupAnimationsPhases);
+
+                this.m_spritesIndex = [];
+                for (let i = totalSpritesCount; i < (totalSpritesCount + totalSprites); i++) {
+                    this.m_spritesIndex[i] = client.getFeature(GameFeature.GameSpritesU32) ? fin.getU32() : fin.getU16();
+                }
+
+                //console.log('spr', this.m_spritesIndex);
+                totalSpritesCount += totalSprites;
+            } else {
+                let width = fin.getU8();
+                let height = fin.getU8();
+                let tmpSize = new Size(width, height);
+                let tmpExactSize = 32;
+                if (width > 1 || height > 1) {
+                    let tmpRealSize = fin.getU8();
+                    tmpExactSize = Math.min(tmpRealSize, Math.max(width * 32, height * 32));
+                }
+
+                let tmpLayers = fin.getU8();
+                let tmpNumPatternX = fin.getU8();
+                let tmpNumPatternY = fin.getU8();
+                let tmpNumPatternZ = 1;
+                if (client.getClientVersion() >= 755)
+                    tmpNumPatternZ = fin.getU8();
+
+                let groupAnimationsPhases = fin.getU8();
+
+                if (groupAnimationsPhases > 1 && client.getFeature(GameFeature.GameEnhancedAnimations)) {
+                    let tmpAnimator = new Animator();
+                    tmpAnimator.unserialize(groupAnimationsPhases, fin);
+                }
+
+                let totalSprites = tmpSize.area() * tmpLayers * tmpNumPatternX * tmpNumPatternY * tmpNumPatternZ * groupAnimationsPhases;
+
+                if ((totalSpritesCount + totalSprites) > 4096)
+                    error("a thing type has more than 4096 sprites", totalSprites, totalSpritesCount, tmpSize.area(), tmpLayers, tmpNumPatternX, tmpNumPatternY, tmpNumPatternZ, groupAnimationsPhases);
+
+                let tmpSpritesIndex = [];
+                for (let i = totalSpritesCount; i < (totalSpritesCount + totalSprites); i++) {
+                    tmpSpritesIndex[i] = client.getFeature(GameFeature.GameSpritesU32) ? fin.getU32() : fin.getU16();
+                }
+
+                //console.log('spr', this.m_spritesIndex);
             }
-
-            let totalSprites = this.m_size.area() * this.m_layers * this.m_numPatternX * this.m_numPatternY * this.m_numPatternZ * groupAnimationsPhases;
-
-            if ((totalSpritesCount + totalSprites) > 4096)
-                error("a thing type has more than 4096 sprites", totalSprites, totalSpritesCount, this.m_size.area(), this.m_layers, this.m_numPatternX, this.m_numPatternY, this.m_numPatternZ, groupAnimationsPhases);
-
-            this.m_spritesIndex = [];
-            for (let i = totalSpritesCount; i < (totalSpritesCount + totalSprites); i++) {
-                this.m_spritesIndex[i] = client.getFeature(GameFeature.GameSpritesU32) ? fin.getU32() : fin.getU16();
-            }
-
-            //console.log('spr', this.m_spritesIndex);
-            totalSpritesCount += totalSprites;
         }
     }
 

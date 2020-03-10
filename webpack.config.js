@@ -10,7 +10,8 @@ module.exports = {
   entry:
   {
     tests: ['babel-polyfill', './tests.ts'],
-    itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts']
+    itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts'],
+    outfitImageGenerator: ['babel-polyfill', './outfitImageGenerator.ts']
   },
   output: {
     filename: '[name].js',

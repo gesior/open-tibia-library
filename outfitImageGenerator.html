@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Outfit Image Generator - OpenTibiaLibrary</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style>
+        * {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+<blockquote>
+    How to use:<br /><br />
+    1. Type version of Tibia client.<br />
+    2. Select SPR, DAT and OTB files.<br />
+    3. Click "LOAD FILES", watch "Progress".<br />
+    4. Click "GENERATE IMAGES", wait for ZIP file download.<br />
+    <br />
+    <b>FILES ARE NOT SEND TO SERVER! EVERYTHING IS GENERATED ON YOUR COMPUTER.</b><br />
+    <br />
+    (Enable Developer console in webbrowser to get more information about problems/progress)
+</blockquote>
+Client Version: <input type="number" id="clientversion" /> (format 860, NOT 8.60)<br />
+Sprite file: <input type="file" id="spr" /><br />
+Dat file: <input type="file" id="dat" /><br />
+Otb file: <input type="file" id="otb" /><br />
+<br />
+<button id="loadFiles">LOAD FILES</button><br />
+<br />
+<button id="generateImages">GENERATE IMAGES</button><br />
+<br />
+<b>Progress:</b> <span id="progressBar">Not running</span><br />
+<script src="js/vendor.js"></script>
+<script src="js/outfitImageGenerator.js"></script>
+
+
+</body>
+</html>
