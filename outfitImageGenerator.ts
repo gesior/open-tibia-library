@@ -4,7 +4,7 @@ import {OtbManager} from "./modules/otbFile/otbManager";
 import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {InputFile} from "./modules/fileHandlers/inputFile";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
-import {DatThingCategory} from "./modules/constants/const";
+import {DatThingCategory, FrameGroupType} from "./modules/constants/const";
 
 let JSZip = require('jszip');
 let GIF = require('gif.js');
@@ -14,6 +14,7 @@ class OutfitImageGenerator {
     private sprPicker: HTMLInputElement;
     private datPicker: HTMLInputElement;
     private otbPicker: HTMLInputElement;
+    private idleAnimation: HTMLInputElement;
     private loadFilesButton: HTMLButtonElement;
     private generateImagesButton: HTMLButtonElement;
 
@@ -23,17 +24,20 @@ class OutfitImageGenerator {
     private spriteManager: SpriteManager;
     private datManager: DatManager;
     private otbManager: OtbManager;
+    private tryLoadIdleAnimation = true;
 
     init() {
         this.clientVersionInput = <HTMLInputElement>document.getElementById('clientversion');
         this.sprPicker = <HTMLInputElement>document.getElementById('spr');
         this.datPicker = <HTMLInputElement>document.getElementById('dat');
         this.otbPicker = <HTMLInputElement>document.getElementById('otb');
+        this.idleAnimation = <HTMLInputElement>document.getElementById('idleAnimation');
         this.loadFilesButton = <HTMLButtonElement>document.getElementById('loadFiles');
         this.generateImagesButton = <HTMLButtonElement>document.getElementById('generateImages');
 
         const self = this;
         this.loadFilesButton.onclick = function () {
+            self.tryLoadIdleAnimation = self.idleAnimation.checked;
             self.loadFiles();
         };
         this.generateImagesButton.onclick = function () {
@@ -141,7 +145,13 @@ class OutfitImageGenerator {
             return;
         }
 
-        const outfitSprites = imageGenerator.generateOutfitAnimationImages(outfitId);
+        let outfitSprites;
+        if (this.tryLoadIdleAnimation) {
+            outfitSprites = imageGenerator.generateOutfitAnimationImages(outfitId, FrameGroupType.FrameGroupIdle);
+        }
+        if (!outfitSprites || outfitSprites.length == 0) {
+            outfitSprites = imageGenerator.generateOutfitAnimationImages(outfitId, FrameGroupType.FrameGroupMoving);
+        }
         if (!outfitSprites || outfitSprites.length == 0) {
             setTimeout(function () {
                 self.generateOutfitImage(imageGenerator, otbManager, datManager, zip, outfitId + 1);

@@ -18,8 +18,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 
 // Block sites that hotlink your host and overload it
 $abusersList = array('aurera-global.com', 'bad-server.com');
-if(in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) || in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList))
-{
+if (isset($_SERVER['HTTP_REFERER']) && (in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) || in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList))) {
     header('Content-Type: image/png');
     readfile('abuse_warning.png');
     exit;
@@ -71,4 +70,4 @@ if (isset($_GET['direction'])) {
 
 $animationFrame = 1;
 header('Content-type: image/gif');
-imagegif(Outfitter::instance()->outfit($_GET['id'], $_GET['addons'], $_GET['head'], $_GET['body'], $_GET['legs'], $_GET['feet'], $mount, $direction, $animationFrame));
+imagegif(Outfitter::instance()->outfit($id, $addons, $head, $body, $legs, $feet, $mount, $direction, $animationFrame));

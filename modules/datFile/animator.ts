@@ -6,7 +6,7 @@ export class Animator {
     m_startPhase = 0;
     m_loopCount = 0;
     m_async = false;
-    m_phaseDurations = [];
+    m_phaseDurations: number[][] = [];
 
     unserialize(animationPhases: number, fin: InputFile) {
         this.m_animationPhases = animationPhases;

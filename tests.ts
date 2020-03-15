@@ -7,6 +7,7 @@ import {InputFile} from "./modules/fileHandlers/inputFile";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
 import {Size} from "./modules/structures/size";
 import {Point} from "./modules/structures/point";
+import {FrameGroupType} from "./modules/constants/const";
 
 const canvas = <HTMLCanvasElement>document.getElementById('view');
 const ctx = canvas.getContext("2d");
@@ -19,9 +20,9 @@ function drawImage(sprite: Sprite, x, y) {
 
 async function testGenerateAllItemImages() {
     const client = new Client();
-    client.setClientVersion(860);
+    client.setClientVersion(1076);
 
-    const serverUrl = 'http://127.0.0.1/Tibia860/';
+    const serverUrl = 'http://127.0.0.1/1076/';
 
     const datManager = new DatManager(client);
     await datManager.loadDatFromUrl(serverUrl + 'Tibia.dat').then(datLoaded => {
@@ -42,9 +43,9 @@ async function testGenerateAllItemImages() {
 
 async function testLoadFromUrlsAndDrawImage() {
     const client = new Client();
-    client.setClientVersion(860);
+    client.setClientVersion(1076);
 
-    const serverUrl = 'http://127.0.0.1/Tibia860/';
+    const serverUrl = 'http://127.0.0.1/1076/';
 
     const datManager = new DatManager(client);
     await datManager.loadDatFromUrl(serverUrl + 'Tibia.dat').then(datLoaded => {
@@ -66,7 +67,7 @@ async function testLoadFromUrlsAndDrawImage() {
     // get data from '.dat' about that item
     let magicSwordThingType = datManager.getItem(magicSwordClientId);
     // get first sprite [image] of that item
-    let firstMagicSwordSprite = magicSwordThingType.getSprite(0);
+    let firstMagicSwordSprite = magicSwordThingType.getFrameGroup(FrameGroupType.FrameGroupIdle).getSprite(0);
     // get image from .spr file
     let firstImagePixelsData = spriteManager.getSprite(firstMagicSwordSprite);
     // draw image in webbrowser with Canvas on position 0, 0
@@ -88,6 +89,16 @@ async function testLoadFromUrlsAndDrawImage() {
         otbManager: otbManager,
         spriteManager: spriteManager
     };
+
+
+    // let otbFile = otbManager.saveOtb();
+    // let a = document.createElement('a');
+    // let url = window.URL.createObjectURL(new Blob(new Array(otbFile.getUint8Array())));
+    // a.href = url;
+    // a.download = 'items.otb';
+    // a.click();
+    // window.URL.revokeObjectURL(url);
+    // a.remove();
 
     // console.log('Generated dat file', datManager.saveDat());
     // console.log('Generated otb file', otbManager.saveOtb());
@@ -117,7 +128,7 @@ async function testFilePicker() {
             try {
                 let magicSwordClientId = otbManager.getItem(itemid).getClientId();
                 let magicSwordThingType = datManager.getItem(magicSwordClientId);
-                let firstMagicSwordSprite = magicSwordThingType.getSprite(0);
+                let firstMagicSwordSprite = magicSwordThingType.getFrameGroup(FrameGroupType.FrameGroupIdle).getSprite(0);
                 let firstImagePixelsData = sprManager.getSprite(firstMagicSwordSprite);
                 drawImage(firstImagePixelsData, 0, 0);
 
@@ -134,9 +145,6 @@ async function testFilePicker() {
         sprPicker.onchange(null);
         datPicker.onchange(null);
         otbPicker.onchange(null);
-        updateItemView(parseInt(itemIdInput.value));
-    };
-    itemIdInput.onchange = function (event) {
         updateItemView(parseInt(itemIdInput.value));
     };
 
@@ -178,10 +186,14 @@ async function testFilePicker() {
             }
         }
     };
+
+    itemIdInput.onchange = function (event) {
+        updateItemView(parseInt(itemIdInput.value));
+    };
 }
 
-testGenerateAllItemImages();
-// testLoadFromUrlsAndDrawImage();
+// testGenerateAllItemImages();
+testLoadFromUrlsAndDrawImage();
 // testFilePicker();
 /*
 download OTB:

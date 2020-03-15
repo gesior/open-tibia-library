@@ -31,7 +31,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 
 // Block sites that hotlink your host and overload it
 $abusersList = array('aurera-global.com', 'bad-server.com');
-if (in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) || in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList)) {
+if (isset($_SERVER['HTTP_REFERER']) && (in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) || in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList))) {
     header('Content-Type: image/png');
     readfile('abuse_warning.png');
     exit;

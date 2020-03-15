@@ -4,6 +4,7 @@ import {OtbManager} from "../otbFile/otbManager";
 import {Sprite} from "../sprFile/sprite";
 import {Size} from "../structures/size";
 import {Point} from "../structures/point";
+import {FrameGroupType} from "../constants/const";
 
 export class ImageGenerator {
     constructor(private datManager: DatManager = null, private sprManager: SpriteManager = null, private otbManager: OtbManager = null) {
@@ -52,13 +53,19 @@ export class ImageGenerator {
             return null;
         }
 
-        const itemSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * itemThingType.m_size.width(), SpriteManager.SPRITE_SIZE * itemThingType.m_size.height()));
+        const frameGroup = itemThingType.getFrameGroup(FrameGroupType.FrameGroupIdle);
+        if (!frameGroup) {
+            console.log('missing idle frameGroup item', clientItemId);
+            return null;
+        }
 
-        for (let l = 0; l < itemThingType.m_layers; ++l) {
-            for (let w = 0; w < itemThingType.m_size.width(); ++w) {
-                for (let h = 0; h < itemThingType.m_size.height(); ++h) {
-                    const spriteId = itemThingType.m_spritesIndex[
-                        itemThingType.getSpriteIndex(w, h, l, 0, 0, 0, animationFrame)
+        const itemSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * frameGroup.m_size.width(), SpriteManager.SPRITE_SIZE * frameGroup.m_size.height()));
+
+        for (let l = 0; l < frameGroup.m_layers; ++l) {
+            for (let w = 0; w < frameGroup.m_size.width(); ++w) {
+                for (let h = 0; h < frameGroup.m_size.height(); ++h) {
+                    const spriteId = frameGroup.m_spritesIndex[
+                        frameGroup.getSpriteIndex(w, h, l, 0, 0, 0, animationFrame)
                         ];
                     const sprite = this.sprManager.getSprite(spriteId);
                     if (!sprite) {
@@ -69,8 +76,8 @@ export class ImageGenerator {
                     }
                     itemSprite.blit(
                         new Point(
-                            SpriteManager.SPRITE_SIZE * (itemThingType.m_size.width() - w - 1),
-                            SpriteManager.SPRITE_SIZE * (itemThingType.m_size.height() - h - 1)
+                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.width() - w - 1),
+                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.height() - h - 1)
                         ),
                         sprite
                     );
@@ -94,8 +101,14 @@ export class ImageGenerator {
             return null;
         }
 
+        const frameGroup = itemThingType.getFrameGroup(FrameGroupType.FrameGroupIdle);
+        if (!frameGroup) {
+            console.log('missing idle frameGroup item', clientItemId);
+            return null;
+        }
+
         const itemSprites = [];
-        for (let a = 0; a < itemThingType.m_animationPhases; ++a) {
+        for (let a = 0; a < frameGroup.m_animationPhases; ++a) {
             const itemSprite = this.generateItemImageByClientId(clientItemId, a);
             if (itemSprite) {
                 itemSprites.push(itemSprite);
@@ -105,7 +118,7 @@ export class ImageGenerator {
         return itemSprites;
     }
 
-    generateOutfitAnimationImages(outfitId: number) {
+    generateOutfitAnimationImages(outfitId: number, frameGroupType: FrameGroupType = FrameGroupType.FrameGroupMoving) {
         if (this.datManager === null) {
             throw new Error("datManager is not set");
         }
@@ -118,19 +131,25 @@ export class ImageGenerator {
             return null;
         }
 
+        const frameGroup = outfitThingType.getFrameGroup(frameGroupType);
+        if (!frameGroup) {
+            console.log('missing frameGroup outfit', outfitId, frameGroupType);
+            return null;
+        }
+
         const sprites = [];
 
-        for(let z = 0; z < outfitThingType.m_numPatternZ; ++z) {
-            for(let y = 0; y < outfitThingType.m_numPatternY; ++y) {
-                for(let x = 0; x < outfitThingType.m_numPatternX; ++x) {
-                    for(let l = 0; l < outfitThingType.m_layers; ++l) {
-                        for(let a = 0; a < outfitThingType.m_animationPhases; ++a) {
+        for(let z = 0; z < frameGroup.m_numPatternZ; ++z) {
+            for(let y = 0; y < frameGroup.m_numPatternY; ++y) {
+                for(let x = 0; x < frameGroup.m_numPatternX; ++x) {
+                    for(let l = 0; l < frameGroup.m_layers; ++l) {
+                        for(let a = 0; a < frameGroup.m_animationPhases; ++a) {
                             console.log('generate', 'outfits_anim/' + outfitId + '/' + (a+1) + '/' + (z+1) + '/' + (y+1) + '/' +(x+1))
-                            const outfitSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * outfitThingType.m_size.width(), SpriteManager.SPRITE_SIZE * outfitThingType.m_size.height()));
-                            for(let w = 0; w < outfitThingType.m_size.width(); ++w) {
-                                for(let h = 0; h < outfitThingType.m_size.height(); ++h) {
-                                    const spriteId = outfitThingType.m_spritesIndex[
-                                        outfitThingType.getSpriteIndex(w, h, l, x, y, z, a)
+                            const outfitSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * frameGroup.m_size.width(), SpriteManager.SPRITE_SIZE * frameGroup.m_size.height()));
+                            for(let w = 0; w < frameGroup.m_size.width(); ++w) {
+                                for(let h = 0; h < frameGroup.m_size.height(); ++h) {
+                                    const spriteId = frameGroup.m_spritesIndex[
+                                        frameGroup.getSpriteIndex(w, h, l, x, y, z, a)
                                         ];
                                     const sprite = this.sprManager.getSprite(spriteId);
                                     if (!sprite) {
@@ -141,8 +160,8 @@ export class ImageGenerator {
                                     }
                                     outfitSprite.blit(
                                         new Point(
-                                            SpriteManager.SPRITE_SIZE * (outfitThingType.m_size.width() - w - 1),
-                                            SpriteManager.SPRITE_SIZE * (outfitThingType.m_size.height() - h - 1)
+                                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.width() - w - 1),
+                                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.height() - h - 1)
                                         ),
                                         sprite
                                     );

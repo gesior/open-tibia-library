@@ -122,7 +122,7 @@ export class DatManager {
                 firstId = 100;
 
             for (let id = firstId; id < this.m_thingTypes[category].length; ++id)
-                this.m_thingTypes[category][id].serialize(fin, this.m_client, clientTranslationArray);
+                this.m_thingTypes[category][id].serialize(fin, category, this.m_client, clientTranslationArray);
         }
         return fin;
     }

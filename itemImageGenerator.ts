@@ -13,6 +13,7 @@ class ItemImageGenerator {
     private sprPicker: HTMLInputElement;
     private datPicker: HTMLInputElement;
     private otbPicker: HTMLInputElement;
+    private onlyPickupableCheckbox: HTMLInputElement;
     private loadFilesButton: HTMLButtonElement;
     private generateImagesButton: HTMLButtonElement;
 
@@ -22,17 +23,20 @@ class ItemImageGenerator {
     private spriteManager: SpriteManager;
     private datManager: DatManager;
     private otbManager: OtbManager;
+    private onlyPickupable = true;
 
     init() {
         this.clientVersionInput = <HTMLInputElement>document.getElementById('clientversion');
         this.sprPicker = <HTMLInputElement>document.getElementById('spr');
         this.datPicker = <HTMLInputElement>document.getElementById('dat');
         this.otbPicker = <HTMLInputElement>document.getElementById('otb');
+        this.onlyPickupableCheckbox = <HTMLInputElement>document.getElementById('onlyPickupable');
         this.loadFilesButton = <HTMLButtonElement>document.getElementById('loadFiles');
         this.generateImagesButton = <HTMLButtonElement>document.getElementById('generateImages');
 
         const self = this;
         this.loadFilesButton.onclick = function () {
+            self.onlyPickupable = self.onlyPickupableCheckbox.checked;
             self.loadFiles();
         };
         this.generateImagesButton.onclick = function () {
@@ -42,7 +46,7 @@ class ItemImageGenerator {
             }
             const imageGenerator = new ImageGenerator(self.datManager, self.spriteManager, self.otbManager);
             const zip = new JSZip();
-            self.generateItemImage(imageGenerator, self.otbManager, self.datManager, zip, 0);
+            self.generateItemImage(imageGenerator, zip, 0);
         };
     }
 
@@ -127,10 +131,10 @@ class ItemImageGenerator {
         }
     }
 
-    generateItemImage(imageGenerator: ImageGenerator, otbManager: OtbManager, datManager: DatManager, zip, serverId: number) {
+    generateItemImage(imageGenerator: ImageGenerator, zip, serverId: number) {
         const self = this;
-        this.progressValue(serverId, otbManager.getLastId());
-        if (serverId > otbManager.getLastId()) {
+        this.progressValue(serverId, this.otbManager.getLastId());
+        if (serverId > this.otbManager.getLastId()) {
             this.progressText('Packing images to ZIP file, please wait (it may take a while)');
             zip.generateAsync({type: "blob"}).then(function (blob: Blob) {
                 console.log('zip size', blob.size);
@@ -140,33 +144,33 @@ class ItemImageGenerator {
             return;
         }
 
-        if (!otbManager.isValidOtbId(serverId)) {
+        if (!this.otbManager.isValidOtbId(serverId)) {
             setTimeout(function () {
-                self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
 
-        const clientItemId = otbManager.getItem(serverId).getClientId();
+        const clientItemId = this.otbManager.getItem(serverId).getClientId();
         if (!clientItemId) {
             console.log('otb ID not mapped to any dat ID', serverId);
             setTimeout(function () {
-                self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
-        let itemThingType = datManager.getItem(clientItemId);
+        let itemThingType = this.datManager.getItem(clientItemId);
         if (!itemThingType) {
             console.log('dat ID not found in dat file', serverId, clientItemId);
             setTimeout(function () {
-                self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
-        if (!itemThingType.isPickupable()) {
+        if (this.onlyPickupable && !itemThingType.isPickupable()) {
             console.log('skip not pickupable', serverId);
             setTimeout(function () {
-                self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
@@ -174,7 +178,7 @@ class ItemImageGenerator {
         const itemSprite = imageGenerator.generateItemImageByServerId(serverId);
         if (!itemSprite) {
             setTimeout(function () {
-                self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
@@ -193,7 +197,7 @@ class ItemImageGenerator {
                 canvas.remove();
                 zip.file(serverId + '.png', blob);
                 setTimeout(function () {
-                    self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                    self.generateItemImage(imageGenerator, zip, serverId + 1);
                 }, 1);
 
             };
@@ -214,7 +218,7 @@ class ItemImageGenerator {
             gif.on('finished', function (blob) {
                 zip.file(serverId + '.gif', blob);
                 setTimeout(function () {
-                    self.generateItemImage(imageGenerator, otbManager, datManager, zip, serverId + 1);
+                    self.generateItemImage(imageGenerator, zip, serverId + 1);
                 }, 1);
 
             });

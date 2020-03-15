@@ -73,10 +73,12 @@ class Outfitter {
 			{
 				$tmp = unserialize(file_get_contents(self::$outfitPath . $outfitId . '/outfit.data.txt'));
 				self::$data['files'] = array_merge(self::$data['files'], $tmp['files']);
+				self::$data['mountFramesNumber'] = $tmp['framesNumber'];
 			}
 			else
 			{
 				self::$data = unserialize(file_get_contents(self::$outfitPath . $outfitId . '/outfit.data.txt'));
+				self::$data['mountFramesNumber'] = 1;
 			}
 			return true;
 		}
@@ -90,7 +92,7 @@ class Outfitter {
 
 	public static function file_exists($filePath)
 	{
-		return in_array(str_replace('\\', '/', $filePath), self::$data['files']);
+		return in_array(trim(trim(str_replace('\\', '/', $filePath), '.'), '/'), self::$data['files']);
 	}
 
 	public function outfit($outfit, $addons, $head, $body, $legs, $feet, $mount, $direction = 3, $animation = 1) {
@@ -111,32 +113,18 @@ class Outfitter {
 			$mountId = $mount;
 			$mountState = 2;
 		}
-		$creature = false;
-
-		if ($creature) {
-			$tmpOutfit = null;
-			if (self::file_exists(self::$outfitPath . $outfit . '/'.$animation.'_1_1_'.$direction.'.png'))
-				$tmpOutfit = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_1_1_'.$direction.'.png');
-			elseif (self::file_exists(self::$outfitPath . $outfit . '/1_1_1_3.png'))
-				$tmpOutfit = imagecreatefrompng(self::$outfitPath . $outfit . '/1_1_1_3.png');
-			if ($tmpOutfit == null)
-				return false;
-
-			$width = imagesx($tmpOutfit);
-			$height = imagesy($tmpOutfit);
-			$image_outfit = imagecreatetruecolor($width, $height);
-			imagefill($image_outfit, 0, 0, $bgcolor = imagecolorallocate($image_outfit, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]));
-			imagecopyresampled($image_outfit, $tmpOutfit, 0, 0, 0, 0, $width, $height, $width, $height);
-			imagecolortransparent($image_outfit, $bgcolor);
-
-			imagealphablending($image_outfit, false);
-			imagesavealpha($image_outfit, true);
-			imagedestroy($tmpOutfit);
-			return $image_outfit;
-		}
 
 		$image_outfit = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'.png');
-		$image_template = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'_template.png');
+		if (file_exists(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'_template.png')) {
+			$image_template = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'_template.png');
+		} else {
+			$image_template = imagecreatetruecolor(imagesx($image_outfit), imagesy($image_outfit));
+			$bgcolor = imagecolorallocate($image_template, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]);
+			imagecolortransparent($image_template, $bgcolor);
+
+			imagealphablending($image_template, false);
+			imagesavealpha($image_template, true);
+		}
 
 		if ($addons == 1 || $addons == 3) {
 			$image_first = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_2_'.$direction.'.png');
@@ -162,8 +150,10 @@ class Outfitter {
 		}
 
 		$this->colorize($image_template, $image_outfit, $head, $body, $legs, $feet);
-		if ($mountState == 2 && self::file_exists(self::$outfitPath . $mountId . '/'.$animation.'_1_1_'.$direction.'.png')) {
-			$mount = imagecreatefrompng(self::$outfitPath . $mountId . '/'.$animation.'_1_1_'.$direction.'.png');
+		$mountAnimationFrame = max(1,(self::$data['mountFramesNumber'] % $animation));
+
+		if ($mountState == 2 && self::file_exists(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png')) {
+			$mount = imagecreatefrompng(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png');
 			$this->alphaOverlay($mount, $image_outfit, 64, 64);
 			imagedestroy($image_outfit);
 			$image_outfit = $mount;
@@ -179,7 +169,9 @@ class Outfitter {
 		imagealphablending($image_outfitT, false);
 		imagesavealpha($image_outfitT, true);
 		imagedestroy($image_outfit);
-		imagedestroy($image_template);
+		if (isset($image_template)) {
+			imagedestroy($image_template);
+		}
 		return $image_outfitT;
 	}
 
