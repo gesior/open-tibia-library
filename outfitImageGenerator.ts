@@ -1,135 +1,31 @@
-import {Client} from "./modules/client";
 import {DatManager} from "./modules/datFile/datManager";
 import {OtbManager} from "./modules/otbFile/otbManager";
 import {SpriteManager} from "./modules/sprFile/spriteManager";
-import {InputFile} from "./modules/fileHandlers/inputFile";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
-import {DatThingCategory, FrameGroupType} from "./modules/constants/const";
+import {DatThingCategory, FrameGroupType, GameFeature} from "./modules/constants/const";
+import {WebsiteImageGeneratorBase} from "./websiteImageGeneratorBase";
 
-let JSZip = require('jszip');
-let GIF = require('gif.js');
+class OutfitImageGenerator extends WebsiteImageGeneratorBase {
+    private idleAnimationCheckbox: HTMLInputElement;
+    private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
 
-class OutfitImageGenerator {
-    private clientVersionInput: HTMLInputElement;
-    private sprPicker: HTMLInputElement;
-    private datPicker: HTMLInputElement;
-    private otbPicker: HTMLInputElement;
-    private idleAnimation: HTMLInputElement;
-    private loadFilesButton: HTMLButtonElement;
-    private generateImagesButton: HTMLButtonElement;
-
-    private imageFormat = 'png';
-
-    private client: Client;
-    private spriteManager: SpriteManager;
-    private datManager: DatManager;
-    private otbManager: OtbManager;
-    private tryLoadIdleAnimation = true;
+    private idleAnimation = true;
 
     init() {
-        this.clientVersionInput = <HTMLInputElement>document.getElementById('clientversion');
-        this.sprPicker = <HTMLInputElement>document.getElementById('spr');
-        this.datPicker = <HTMLInputElement>document.getElementById('dat');
-        this.otbPicker = <HTMLInputElement>document.getElementById('otb');
-        this.idleAnimation = <HTMLInputElement>document.getElementById('idleAnimation');
-        this.loadFilesButton = <HTMLButtonElement>document.getElementById('loadFiles');
-        this.generateImagesButton = <HTMLButtonElement>document.getElementById('generateImages');
-
-        const self = this;
-        this.loadFilesButton.onclick = function () {
-            self.tryLoadIdleAnimation = self.idleAnimation.checked;
-            self.loadFiles();
-        };
-        this.generateImagesButton.onclick = function () {
-            if (!self.spriteManager || !self.datManager || !self.otbManager) {
-                self.progressText('Cannot generate images. First ');
-                return;
-            }
-            const imageGenerator = new ImageGenerator(self.datManager, self.spriteManager, self.otbManager);
-            const zip = new JSZip();
-            self.generateOutfitImage(imageGenerator, self.otbManager, self.datManager, zip, 0);
-        };
+        super.init();
+        this.idleAnimationCheckbox = <HTMLInputElement>document.getElementById('idleAnimation');
+        this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
     }
 
-    loadFiles() {
-        let clientVersion = parseInt(this.clientVersionInput.value);
-        this.progressText('Loading client version ' + clientVersion);
-        this.client = new Client();
-        this.client.setClientVersion(clientVersion);
-        this.progressText('Loading SPR file');
-        const self = this;
-        setTimeout(function () {
-            self.loadSpr()
-        }, 10);
-    }
-
-    loadSpr() {
-        if (this.sprPicker.files.length > 0) {
-            this.spriteManager = new SpriteManager(this.client);
-            const file = this.sprPicker.files[0];
-            var reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            const self = this;
-            reader.onload = function (event: any) {
-                const sprLoaded = self.spriteManager.loadSpr(new InputFile(new DataView(event.target.result)));
-                if (sprLoaded) {
-                    self.progressText('Loading DAT file');
-                    setTimeout(function () {
-                        self.loadDat()
-                    }, 10);
-                } else {
-                    self.spriteManager = null;
-                    self.progressText('ERROR: Failed to load SPR file');
-                }
-            }
-        } else {
-            this.progressText('ERROR: Please select SPR file');
+    afterSetClientVersion() {
+        if (this.forceEnableExtendedSpritesCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameSpritesU32);
         }
     }
 
-    loadDat() {
-        if (this.datPicker.files.length > 0) {
-            this.datManager = new DatManager(this.client);
-            const file = this.datPicker.files[0];
-            var reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            const self = this;
-            reader.onload = function (event: any) {
-                const datLoaded = self.datManager.loadDat(new InputFile(new DataView(event.target.result)));
-                if (datLoaded) {
-                    self.progressText('Loading OTB file');
-                    setTimeout(function () {
-                        self.loadOtb()
-                    }, 10);
-                } else {
-                    self.datManager = null;
-                    self.progressText('ERROR: Failed to load DAT file');
-                }
-            }
-        } else {
-            this.progressText('ERROR: Please select DAT file');
-        }
-    }
-
-    loadOtb() {
-        if (this.otbPicker.files.length > 0) {
-            this.otbManager = new OtbManager(this.client);
-            const file = this.otbPicker.files[0];
-            var reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            const self = this;
-            reader.onload = function (event: any) {
-                const otbLoaded = self.otbManager.loadOtb(new InputFile(new DataView(event.target.result)));
-                if (otbLoaded) {
-                    self.progressText('Data loaded. You can click "Generate images" now.');
-                } else {
-                    self.otbManager = null;
-                    self.progressText('ERROR: Failed to load OTB file');
-                }
-            }
-        } else {
-            this.progressText('ERROR: Please select OTB file');
-        }
+    startImageGenerator(imageGenerator: ImageGenerator, otbManager: OtbManager, datManager: DatManager, spriteManager: SpriteManager, zip) {
+        this.idleAnimation = this.idleAnimationCheckbox.checked;
+        this.generateOutfitImage(imageGenerator, otbManager, datManager, zip, 0);
     }
 
     generateOutfitImage(imageGenerator: ImageGenerator, otbManager: OtbManager, datManager: DatManager, zip, outfitId: number) {
@@ -146,7 +42,7 @@ class OutfitImageGenerator {
         }
 
         let outfitSprites;
-        if (this.tryLoadIdleAnimation) {
+        if (this.idleAnimation) {
             outfitSprites = imageGenerator.generateOutfitAnimationImages(outfitId, FrameGroupType.FrameGroupIdle);
         }
         if (!outfitSprites || outfitSprites.length == 0) {
@@ -160,7 +56,7 @@ class OutfitImageGenerator {
         }
 
         let spritesToProcess = outfitSprites.length;
-        for(let outfitSprite of outfitSprites) {
+        for (let outfitSprite of outfitSprites) {
             const canvas = <HTMLCanvasElement>document.createElement('canvas');
             canvas.width = outfitSprite.sprite.getWidth();
             canvas.height = outfitSprite.sprite.getHeight();
@@ -172,7 +68,7 @@ class OutfitImageGenerator {
             if (self.imageFormat == 'png') {
                 const callback = function (blob) {
                     canvas.remove();
-                    zip.file( outfitSprite.file + '.png', blob);
+                    zip.file(outfitSprite.file + '.png', blob);
                     spritesToProcess--;
                     if (spritesToProcess == 0) {
                         setTimeout(function () {
@@ -184,25 +80,6 @@ class OutfitImageGenerator {
             }
         }
 
-    }
-
-    downloadBlob(filename: string, blob: Blob) {
-        const a = document.createElement('a');
-        const url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = filename;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-    }
-
-    progressValue(done: number, todo: number) {
-        let text = done + '/' + todo;
-        this.progressText(text);
-    }
-
-    progressText(text: string) {
-        document.getElementById('progressBar').innerText = text;
     }
 }
 

@@ -1,17 +1,16 @@
+import {DatManager} from "./modules/datFile/datManager";
+import {OtbManager} from "./modules/otbFile/otbManager";
+import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
 import {GameFeature} from "./modules/constants/const";
 import {WebsiteImageGeneratorBase} from "./websiteImageGeneratorBase";
-import {OtbManager} from "./modules/otbFile/otbManager";
-import {DatManager} from "./modules/datFile/datManager";
-import {SpriteManager} from "./modules/sprFile/spriteManager";
-
-let GIF = require('gif.js');
 
 class ItemImageGenerator extends WebsiteImageGeneratorBase {
     private onlyPickupableCheckbox: HTMLInputElement;
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
 
     private onlyPickupable = true;
+    private forceEnableExtendedSprites = false;
 
     init() {
         super.init();
@@ -74,56 +73,37 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
             return;
         }
 
-        const itemSprite = imageGenerator.generateItemImageByServerId(serverId);
-        if (!itemSprite) {
+        const itemSprites = imageGenerator.generateItemImagesByServerId(serverId);
+        if (!itemSprites || itemSprites.length == 0) {
             setTimeout(function () {
                 self.generateItemImage(imageGenerator, zip, serverId + 1);
             }, 1);
             return;
         }
 
+        const firstItemSprite = itemSprites[0];
         const canvas = <HTMLCanvasElement>document.createElement('canvas');
-        canvas.width = itemSprite.getWidth();
-        canvas.height = itemSprite.getHeight();
+        canvas.width = firstItemSprite.getWidth() * itemSprites.length;
+        canvas.height = firstItemSprite.getHeight();
         document.getElementsByTagName('body')[0].appendChild(canvas);
         const ctx = canvas.getContext("2d");
-        const palette = ctx.getImageData(0, 0, itemSprite.getWidth(), itemSprite.getHeight());
-        palette.data.set(new Uint8ClampedArray(itemSprite.getPixels().m_buffer.buffer));
-        ctx.putImageData(palette, 0, 0);
 
-        if (self.imageFormat == 'png') {
-            const callback = function (blob) {
-                canvas.remove();
-                zip.file('items/' + serverId + '.png', blob);
-                setTimeout(function () {
-                    self.generateItemImage(imageGenerator, zip, serverId + 1);
-                }, 1);
-
-            };
-            canvas.toBlob(callback);
-        } else {
-            const gif = new GIF({
-                workers: 1,
-                quality: 10,
-                width: itemSprite.getWidth(),
-                height: itemSprite.getHeight(),
-                workerScript: './js/gif.worker.js',
-                transparent: 'rgba(0,0,0,0)'
-            });
-
-            gif.addFrame(canvas, {copy: true});
-            canvas.remove();
-
-            gif.on('finished', function (blob) {
-                zip.file(serverId + '.gif', blob);
-                setTimeout(function () {
-                    self.generateItemImage(imageGenerator, zip, serverId + 1);
-                }, 1);
-
-            });
-
-            gif.render();
+        for (let animationFrame = 0; animationFrame < itemSprites.length; animationFrame++) {
+            const palette = ctx.getImageData(firstItemSprite.getWidth() * animationFrame, 0, firstItemSprite.getWidth(), firstItemSprite.getHeight());
+            const itemSprite = itemSprites[animationFrame];
+            palette.data.set(new Uint8ClampedArray(itemSprite.getPixels().m_buffer.buffer));
+            ctx.putImageData(palette, firstItemSprite.getWidth() * animationFrame, 0);
         }
+
+        const callback = function (blob) {
+            canvas.remove();
+            zip.file('items/' + serverId + '_' + itemSprites.length + '.png', blob);
+            setTimeout(function () {
+                self.generateItemImage(imageGenerator, zip, serverId + 1);
+            }, 1);
+
+        };
+        canvas.toBlob(callback);
     }
 }
 

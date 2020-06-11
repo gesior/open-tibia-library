@@ -40,7 +40,7 @@ export class ImageGenerator {
         return this.generateItemImagesByClientId(clientItemId);
     }
 
-    generateItemImageByClientId(clientItemId: number, animationFrame = 0): Sprite {
+    generateItemImageByClientId(clientItemId: number, animationFrame = 0, xPattern = 0, yPattern = 0, zPattern = 0,): Sprite {
         if (this.datManager === null) {
             throw new Error("datManager is not set");
         }
@@ -65,7 +65,7 @@ export class ImageGenerator {
             for (let w = 0; w < frameGroup.m_size.width(); ++w) {
                 for (let h = 0; h < frameGroup.m_size.height(); ++h) {
                     const spriteId = frameGroup.m_spritesIndex[
-                        frameGroup.getSpriteIndex(w, h, l, 0, 0, 0, animationFrame)
+                        frameGroup.getSpriteIndex(w, h, l, xPattern, yPattern, zPattern, animationFrame)
                         ];
                     const sprite = this.sprManager.getSprite(spriteId);
                     if (!sprite) {
@@ -88,6 +88,12 @@ export class ImageGenerator {
         return itemSprite;
     }
 
+    /**
+     * Generates array of item images.
+     * Array contains animation frames of item.
+     * If item is stackable, array contains first animation frame of each stack stage.
+     * @param clientItemId
+     */
     generateItemImagesByClientId(clientItemId: number): Sprite[] {
         if (this.datManager === null) {
             throw new Error("datManager is not set");
@@ -108,10 +114,21 @@ export class ImageGenerator {
         }
 
         const itemSprites = [];
-        for (let a = 0; a < frameGroup.m_animationPhases; ++a) {
-            const itemSprite = this.generateItemImageByClientId(clientItemId, a);
-            if (itemSprite) {
-                itemSprites.push(itemSprite);
+        if (itemThingType.isStackable() && frameGroup.getNumPatternX() == 4 && frameGroup.getNumPatternY() == 2) {
+            for (let patternY = 0; patternY < frameGroup.getNumPatternY(); ++patternY) {
+                for (let patternX = 0; patternX < frameGroup.getNumPatternX(); ++patternX) {
+                    const itemSprite = this.generateItemImageByClientId(clientItemId, 0, patternX, patternY);
+                    if (itemSprite) {
+                        itemSprites.push(itemSprite);
+                    }
+                }
+            }
+        } else {
+            for (let animationPhase = 0; animationPhase < frameGroup.m_animationPhases; ++animationPhase) {
+                const itemSprite = this.generateItemImageByClientId(clientItemId, animationPhase);
+                if (itemSprite) {
+                    itemSprites.push(itemSprite);
+                }
             }
         }
 
@@ -139,15 +156,15 @@ export class ImageGenerator {
 
         const sprites = [];
 
-        for(let z = 0; z < frameGroup.m_numPatternZ; ++z) {
-            for(let y = 0; y < frameGroup.m_numPatternY; ++y) {
-                for(let x = 0; x < frameGroup.m_numPatternX; ++x) {
-                    for(let l = 0; l < frameGroup.m_layers; ++l) {
-                        for(let a = 0; a < frameGroup.m_animationPhases; ++a) {
-                            console.log('generate', 'outfits_anim/' + outfitId + '/' + (a+1) + '/' + (z+1) + '/' + (y+1) + '/' +(x+1))
+        for (let z = 0; z < frameGroup.m_numPatternZ; ++z) {
+            for (let y = 0; y < frameGroup.m_numPatternY; ++y) {
+                for (let x = 0; x < frameGroup.m_numPatternX; ++x) {
+                    for (let l = 0; l < frameGroup.m_layers; ++l) {
+                        for (let a = 0; a < frameGroup.m_animationPhases; ++a) {
+                            console.log('generate', 'outfits_anim/' + outfitId + '/' + (a + 1) + '/' + (z + 1) + '/' + (y + 1) + '/' + (x + 1))
                             const outfitSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * frameGroup.m_size.width(), SpriteManager.SPRITE_SIZE * frameGroup.m_size.height()));
-                            for(let w = 0; w < frameGroup.m_size.width(); ++w) {
-                                for(let h = 0; h < frameGroup.m_size.height(); ++h) {
+                            for (let w = 0; w < frameGroup.m_size.width(); ++w) {
+                                for (let h = 0; h < frameGroup.m_size.height(); ++h) {
                                     const spriteId = frameGroup.m_spritesIndex[
                                         frameGroup.getSpriteIndex(w, h, l, x, y, z, a)
                                         ];
@@ -167,10 +184,16 @@ export class ImageGenerator {
                                     );
                                 }
                             }
-                            if(l == 1) {
-                                sprites.push({file:'outfits_anim/' + outfitId + '/' + (a+1) + '_' + (z+1) + '_' + (y+1) + '_' +(x+1) + '_template', sprite: outfitSprite});
+                            if (l == 1) {
+                                sprites.push({
+                                    file: 'outfits_anim/' + outfitId + '/' + (a + 1) + '_' + (z + 1) + '_' + (y + 1) + '_' + (x + 1) + '_template',
+                                    sprite: outfitSprite
+                                });
                             } else {
-                                sprites.push({file:'outfits_anim/' + outfitId + '/' + (a+1) + '_' + (z+1) + '_' + (y+1) + '_' +(x+1), sprite: outfitSprite});
+                                sprites.push({
+                                    file: 'outfits_anim/' + outfitId + '/' + (a + 1) + '_' + (z + 1) + '_' + (y + 1) + '_' + (x + 1),
+                                    sprite: outfitSprite
+                                });
                             }
                         }
                     }

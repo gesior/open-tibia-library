@@ -11,6 +11,7 @@ module.exports = {
   {
     tests: ['babel-polyfill', './tests.ts'],
     itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts'],
+    itemImageFramesGenerator: ['babel-polyfill', './itemImageFramesGenerator.ts'],
     outfitImageGenerator: ['babel-polyfill', './outfitImageGenerator.ts']
   },
   output: {

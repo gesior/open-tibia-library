@@ -1,16 +1,21 @@
 <html>
 <head>
-    <title>Item Image Generator - OpenTibiaLibrary</title>
+    <title>Item Image Frames Generator - OpenTibiaLibrary</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 </head>
 <body>
-<h2>Item images generator</h2>
+<h2>Item image frames generator (for animated items PHP script)</h2>
 <blockquote>
     How to use:<br/><br/>
     1. Type version of Tibia client.<br/>
     2. Select SPR, DAT and OTB files.<br/>
     3. Click "LOAD FILES", watch "Progress".<br/>
     4. Click "GENERATE IMAGES", wait for ZIP file download.<br/>
+    5. Convert generated PNG images into animations using:<br/>
+    <a href="https://item-images.ots.me/png-to-gif-converter/">https://item-images.ots.me/png-to-gif-converter/</a><br/>
+    You can also download <a href="https://github.com/gesior/open-tibia-library">https://github.com/gesior/open-tibia-library</a>
+    and use command line PHP script <b>"tools/item-image-frames-to-animated-gif-converter/cli_convert.php"</b>
+    to convert it to animations on your PC<br/>
     <br/>
     <b>FILES ARE NOT SEND TO SERVER! EVERYTHING IS GENERATED ON YOUR COMPUTER.</b><br/>
     <br/>
@@ -32,6 +37,6 @@ with this feature enabled)<br/>
 <br/>
 <b>Progress:</b> <span id="progressBar">Not running</span><br/>
 <script src="js/vendor.js"></script>
-<script src="js/itemImageGenerator.js"></script>
+<script src="js/itemImageFramesGenerator.js"></script>
 </body>
 </html>
