@@ -31,7 +31,9 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 
 // Block sites that hotlink your host and overload it
 $abusersList = array('aurera-global.com', 'bad-server.com');
-if (isset($_SERVER['HTTP_REFERER']) && (in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) || in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList))) {
+if (isset($_SERVER['HTTP_REFERER']) && (in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $abusersList) ||
+        in_array(substr(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), 4), $abusersList))
+) {
     header('Content-Type: image/png');
     readfile('abuse_warning.png');
     exit;
@@ -91,7 +93,17 @@ $moveAnimFrames = Outfitter::getOutfitFramesNumber();
 // rotate player, BIG IMAGES, 20-80 KB per outfit!
 //for($direction = 1; $direction <= 4; $direction++) 
 for ($moveAnimFrame = 1; $moveAnimFrame <= $moveAnimFrames; ++$moveAnimFrame) {
-    $frames[] = Outfitter::instance()->outfit($id, $addons, $head, $body, $legs, $feet, $mount, $direction, $moveAnimFrame);
+    $frames[] = Outfitter::instance()->outfit(
+        $id,
+        $addons,
+        $head,
+        $body,
+        $legs,
+        $feet,
+        $mount,
+        $direction,
+        $moveAnimFrame
+    );
     $durations[] = $walkSpeeds[$moveAnimFrames];
 }
 $gc = new GifCreator();
@@ -100,4 +112,3 @@ $gifBinary = $gc->getGif();
 
 header('Content-type: image/gif');
 echo $gifBinary;
-    

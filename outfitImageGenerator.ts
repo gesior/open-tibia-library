@@ -12,6 +12,7 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
     private idleAnimation = true;
 
     init() {
+        this.otbRequired = false;
         super.init();
         this.idleAnimationCheckbox = <HTMLInputElement>document.getElementById('idleAnimation');
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');

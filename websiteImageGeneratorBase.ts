@@ -15,6 +15,7 @@ export class WebsiteImageGeneratorBase {
     protected loadFilesButton: HTMLButtonElement;
     protected generateImagesButton: HTMLButtonElement;
 
+    protected otbRequired = true;
     protected imageFormat = 'png';
 
     protected client: Client;
@@ -114,23 +115,28 @@ export class WebsiteImageGeneratorBase {
     }
 
     loadOtb() {
-        if (this.otbPicker.files.length > 0) {
-            this.otbManager = new OtbManager(this.client);
-            const file = this.otbPicker.files[0];
-            var reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            const self = this;
-            reader.onload = function (event: any) {
-                const otbLoaded = self.otbManager.loadOtb(new InputFile(new DataView(event.target.result)));
-                if (otbLoaded) {
-                    self.progressText('Data loaded. You can click "Generate images" now.');
-                } else {
-                    self.otbManager = null;
-                    self.progressText('ERROR: Failed to load OTB file');
+        if (this.otbRequired) {
+            if (this.otbPicker.files.length > 0) {
+                this.otbManager = new OtbManager(this.client);
+                const file = this.otbPicker.files[0];
+                var reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                const self = this;
+                reader.onload = function (event: any) {
+                    const otbLoaded = self.otbManager.loadOtb(new InputFile(new DataView(event.target.result)));
+                    if (otbLoaded) {
+                        self.progressText('Data loaded. You can click "Generate images" now.');
+                    } else {
+                        self.otbManager = null;
+                        self.progressText('ERROR: Failed to load OTB file');
+                    }
                 }
+            } else {
+                this.progressText('ERROR: Please select OTB file');
             }
         } else {
-            this.progressText('ERROR: Please select OTB file');
+            this.otbManager = new OtbManager(this.client);
+            this.progressText('Data loaded. You can click "Generate images" now.');
         }
     }
 
