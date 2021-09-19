@@ -24,7 +24,7 @@ foreach ($iterator as $file)
 }
 
 // CODE TO CHECK WHAT VALUES OF 'framesNumber' ARE POSSIBLE FOR YOUR OUTFITS
-$frameNumbers = [];
+$frameNumbers = [0,0,0,0,0,0,0,0,0,0];
 foreach($outfits as $outfitId => $outfit)
 {
 	if (!file_put_contents($outfitImagesPath . '/' . $outfitId . '/outfit.data.txt', serialize($outfit))) {

@@ -29,6 +29,7 @@ if (isset($_SERVER['HTTP_REFERER']) && (in_array(parse_url($_SERVER['HTTP_REFERE
 
 require('libs/outfitter.php');
 Outfitter::$outfitPath = $outfitImagesPath;
+Outfitter::setResizeAllOutfitsTo64px($resizeAllOutfitsTo64px);
 
 $id = 0;
 if (isset($_GET['id'])) {
@@ -60,7 +61,7 @@ if (isset($_GET['legs'])) {
 }
 $feet = 0;
 if (isset($_GET['feet'])) {
-    $addons = (int)$_GET['feet'];
+    $feet = (int)$_GET['feet'];
 }
 $addons = 0;
 if (isset($_GET['addons'])) {

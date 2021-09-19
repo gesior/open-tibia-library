@@ -7,21 +7,9 @@ if (!file_exists('./cache.generated.txt')) {
     exit;
 }
 
-$walkSpeeds = [
-    1 => 50,
-    2 => 35,
-    3 => 30,
-    4 => 15,
-    5 => 15,
-    6 => 15,
-    7 => 15,
-    8 => 8,
-    9 => 8
-];
-
 header('Cache-control: max-age=' . (60 * 60 * 24 * 365));
 header('Expires: ' . gmdate(DATE_RFC1123, time() + 60 * 60 * 24 * 365));
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s', 1337) . ' GMT'); // date in 1970
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s', 1337) . ' GMT');
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
     header('HTTP/1.0 304 Not Modified');
     header('Cache-Control: public');
@@ -43,6 +31,7 @@ require('libs/outfitter.php');
 require('libs/gifCreator.php');
 
 Outfitter::$outfitPath = $outfitImagesPath;
+Outfitter::setResizeAllOutfitsTo64px($resizeAllOutfitsTo64px);
 
 $id = 0;
 if (isset($_GET['id'])) {
@@ -74,7 +63,7 @@ if (isset($_GET['legs'])) {
 }
 $feet = 0;
 if (isset($_GET['feet'])) {
-    $addons = (int)$_GET['feet'];
+    $feet = (int)$_GET['feet'];
 }
 $addons = 0;
 if (isset($_GET['addons'])) {

@@ -3,7 +3,7 @@
  * @author Kamil Karkus <kaker@wp.eu>
  * @author Gesior.pl <phoowned@wp.pl>
  * @copyright Copyright (c) 2012, Kamil Karkus
- * @version 2
+ * @version 3 - fixed mount animation frames
  */
 
 class Outfitter {
@@ -33,16 +33,46 @@ class Outfitter {
 		0x00007F, 0x2A007F, 0x54007F, 0x7F007F, 0x7F0055, 0x7F002A,
 		0x7F0000,
 	);
-	public static $mountsTFS = [1 => 368, 2 => 369, 3 => 370, 4 => 371, 5 => 372, 6 => 373, 7 => 374, 8 => 375, 9 => 376, 10 => 377, 11 => 378, 12 => 379, 13 => 387, 14 => 388, 15 => 389, 16 => 390, 17 => 392, 18 => 401, 19 => 402, 20 => 405, 21 => 406, 22 => 421, 23 => 426, 24 => 427, 25 => 437, 26 => 438, 27 => 447, 28 => 450, 29 => 502, 30 => 503, 31 => 506, 32 => 515, 33 => 521, 34 => 522, 35 => 526, 36 => 546, 37 => 547, 38 => 548, 39 => 559, 40 => 571, 41 => 572, 42 => 580, 43 => 606, 44 => 621, 45 => 622, 46 => 624, 47 => 626, 48 => 627, 49 => 628, 50 => 629, 51 => 630, 52 => 631, 53 => 644, 54 => 647, 55 => 648, 56 => 649, 57 => 650, 58 => 651, 59 => 669, 60 => 670, 61 => 671, 62 => 672, 63 => 673, 64 => 674, 65 => 682, 66 => 685, 67 => 686, 68 => 687, 69 => 688, 70 => 689, 71 => 690, 72 => 691, 73 => 692, 74 => 693, 75 => 726, 76 => 727, 77 => 728, 78 => 734, 79 => 735, 80 => 736, 81 => 738, 82 => 739, 83 => 740, 84 => 761, 85 => 762, 86 => 763, 87 => 848, 88 => 849, 89 => 850, 90 => 851, 91 => 868, 92 => 869, 93 => 870, 94 => 883, 95 => 886, 96 => 887, 97 => 888, 98 => 889, 99 => 890, 100 => 901, 101 => 902, 102 => 903];
+	public static $mountsTFS = [
+	    1 => 368, 2 => 369, 3 => 370, 4 => 371, 5 => 372, 6 => 373, 7 => 374, 8 => 375,
+        9 => 376, 10 => 377, 11 => 378, 12 => 379, 13 => 387, 14 => 388, 15 => 389, 16 => 390, 17 => 392,
+        18 => 401, 19 => 402, 20 => 405, 21 => 406, 22 => 421, 23 => 426, 24 => 427, 25 => 437, 26 => 438,
+        27 => 447, 28 => 450, 29 => 502, 30 => 503, 31 => 506, 32 => 515, 33 => 521, 34 => 522, 35 => 526,
+        36 => 546, 37 => 547, 38 => 548, 39 => 559, 40 => 571, 41 => 572, 42 => 580, 43 => 606, 44 => 621,
+        45 => 622, 46 => 624, 47 => 626, 48 => 627, 49 => 628, 50 => 629, 51 => 630, 52 => 631, 53 => 644,
+        54 => 647, 55 => 648, 56 => 649, 57 => 650, 58 => 651, 59 => 669, 60 => 670, 61 => 671, 62 => 672,
+        63 => 673, 64 => 674, 65 => 688, 66 => 689, 67 => 690, 68 => 691, 69 => 692, 70 => 693, 71 => 682,
+        72 => 685, 73 => 686, 74 => 687, 75 => 726, 76 => 727, 77 => 728, 78 => 734, 79 => 735, 80 => 736,
+        81 => 738, 82 => 739, 83 => 740, 84 => 761, 85 => 762, 86 => 763, 87 => 848, 88 => 849, 89 => 850,
+        90 => 851, 91 => 868, 92 => 869, 93 => 870, 94 => 883, 95 => 886, 96 => 887, 97 => 888, 98 => 889,
+        99 => 890, 100 => 901, 101 => 902, 102 => 903, 103 => 905, 104 => 906, 105 => 907, 106 => 937,
+        107 => 950, 108 => 951, 109 => 952, 110 => 959, 111 => 960, 112 => 961, 113 => 1017, 114 => 1018,
+        115 => 1019, 116 => 1025, 117 => 1026, 118 => 1027, 119 => 1049, 120 => 1052, 121 => 1053,
+        122 => 1054, 123 => 1091, 124 => 1092, 125 => 1093, 126 => 1101, 127 => 1104, 128 => 1105,
+        129 => 1106, 130 => 1150, 131 => 1151, 132 => 1163, 133 => 1164, 134 => 1165, 135 => 1167,
+        136 => 1168, 137 => 1169, 138 => 1179, 139 => 1180, 140 => 1181, 141 => 1183, 142 => 1184,
+        143 => 1185, 144 => 1191, 145 => 1208, 146 => 1209, 147 => 1229, 148 => 1230, 149 => 1231,
+        150 => 1232, 151 => 1233, 152 => 1234, 153 => 1247, 154 => 1248, 155 => 1249, 156 => 1257,
+        157 => 1258, 158 => 1259, 159 => 1264, 160 => 1265, 161 => 1266, 162 => 1269, 163 => 1281,
+        164 => 1284, 165 => 1285, 166 => 1286, 167 => 1321, 168 => 1324, 169 => 1325, 170 => 1326,
+        171 => 1333, 172 => 1334, 173 => 1335, 174 => 1336, 175 => 1363, 176 => 1379, 177 => 1380,
+        178 => 1381, 179 => 1389, 180 => 1390, 181 => 1391, 182 => 1417, 183 => 1430, 184 => 1431,
+        185 => 1439, 186 => 1440, 187 => 1441
+    ];
 
 	public static $data = [];
 	private static $transparentBackgroundColor = array(255, 255, 255);
 	public static $outfitPath;
+	public static $resizeAllOutfitsTo64px = false;
 
 	public static function instance() {
 		if (!isset(self::$instance))
 			self::$instance = new self();
 		return self::$instance;
+	}
+
+	public static function setResizeAllOutfitsTo64px($value) {
+		self::$resizeAllOutfitsTo64px = (bool)$value;
 	}
 
 	public static function loadData($outfitId, $isMount = false)
@@ -52,19 +82,12 @@ class Outfitter {
 			$mount = $outfitId;
 			if($mount == 0 || $mount >= 65535)
 			{
-				// old mount system
                 $outfitId = ($mount & 0xFFFF);
-				$mountState = (($mount & 0xFFFF0000) != 0) ? 2 : 1;
 			}
 			elseif($mount < 300)
 			{
 				// tfs 1.x mount system
                 $outfitId = self::$mountsTFS[$mount];
-				$mountState = 2;
-			}
-			else
-			{
-				$mountState = 2;
 			}
 		}
 		if(file_exists(self::$outfitPath . $outfitId . '/outfit.data.txt'))
@@ -150,7 +173,11 @@ class Outfitter {
 		}
 
 		$this->colorize($image_template, $image_outfit, $head, $body, $legs, $feet);
-		$mountAnimationFrame = max(1,(self::$data['mountFramesNumber'] % $animation));
+
+		$mountAnimationFrame = $animation;
+		while ($mountAnimationFrame > self::$data['mountFramesNumber']) {
+			$mountAnimationFrame -= self::$data['mountFramesNumber'];
+		}
 
 		if ($mountState == 2 && self::file_exists(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png')) {
 			$mount = imagecreatefrompng(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png');
@@ -158,14 +185,20 @@ class Outfitter {
 			imagedestroy($image_outfit);
 			$image_outfit = $mount;
 		}
-		
+
 		$width = imagesx($image_outfit);
 		$height = imagesy($image_outfit);
-		$image_outfitT = imagecreatetruecolor($width, $height);
+		if (self::$resizeAllOutfitsTo64px) {
+			$image_outfitT = imagecreatetruecolor(64, 64);
+		} else {
+			$image_outfitT = imagecreatetruecolor($width, $height);
+		}
 		imagefill($image_outfitT, 0, 0, $bgcolor = imagecolorallocate($image_outfitT, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]));
-		imagecopyresampled($image_outfitT, $image_outfit, 0, 0, 0, 0, $width, $height, $width, $height);
+
+		imagecopyresampled($image_outfitT, $image_outfit, imagesx($image_outfitT)-$width, imagesy($image_outfitT)-$height, 0, 0, $width, $height, $width, $height);
+
 		imagecolortransparent($image_outfitT, $bgcolor);
-		
+
 		imagealphablending($image_outfitT, false);
 		imagesavealpha($image_outfitT, true);
 		imagedestroy($image_outfit);
