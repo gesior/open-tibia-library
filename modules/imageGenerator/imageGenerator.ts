@@ -135,6 +135,90 @@ export class ImageGenerator {
         return itemSprites;
     }
 
+    generateEffectImageById(clientItemId: number, animationFrame = 0, xPattern = 0, yPattern = 0, zPattern = 0,): Sprite {
+        if (this.datManager === null) {
+            throw new Error("datManager is not set");
+        }
+        if (this.sprManager === null) {
+            throw new Error("sprManager is not set");
+        }
+        let itemThingType = this.datManager.getEffect(clientItemId);
+        if (!itemThingType) {
+            console.log('missing dat effect', clientItemId);
+            return null;
+        }
+
+        const frameGroup = itemThingType.getFrameGroup(FrameGroupType.FrameGroupDefault);
+        if (!frameGroup) {
+            console.log('missing default frameGroup effect', clientItemId);
+            return null;
+        }
+
+        const itemSprite = new Sprite(new Size(SpriteManager.SPRITE_SIZE * frameGroup.m_size.width(), SpriteManager.SPRITE_SIZE * frameGroup.m_size.height()));
+
+        for (let l = 0; l < frameGroup.m_layers; ++l) {
+            for (let w = 0; w < frameGroup.m_size.width(); ++w) {
+                for (let h = 0; h < frameGroup.m_size.height(); ++h) {
+                    const spriteId = frameGroup.m_spritesIndex[
+                        frameGroup.getSpriteIndex(w, h, l, xPattern, yPattern, zPattern, animationFrame)
+                        ];
+                    const sprite = this.sprManager.getSprite(spriteId);
+                    if (!sprite) {
+                        if (spriteId != 0) {
+                            console.log('missing sprite', spriteId);
+                        }
+                        continue;
+                    }
+                    itemSprite.blit(
+                        new Point(
+                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.width() - w - 1),
+                            SpriteManager.SPRITE_SIZE * (frameGroup.m_size.height() - h - 1)
+                        ),
+                        sprite
+                    );
+                }
+            }
+        }
+
+        return itemSprite;
+    }
+
+    /**
+     * Generates array of effect images.
+     * Array contains animation frames of effect.
+     * If item is stackable, array contains first animation frame of each stack stage.
+     * @param effectId
+     */
+    generateEffectImagesById(effectId: number): Sprite[] {
+        if (this.datManager === null) {
+            throw new Error("datManager is not set");
+        }
+        if (this.sprManager === null) {
+            throw new Error("sprManager is not set");
+        }
+        let effectThingType = this.datManager.getEffect(effectId);
+        if (!effectThingType) {
+            console.log('missing dat effect', effectId);
+            return null;
+        }
+
+        const frameGroup = effectThingType.getFrameGroup(FrameGroupType.FrameGroupIdle);
+        if (!frameGroup) {
+            console.log('missing idle frameGroup item', effectId);
+            return null;
+        }
+
+        const effectSprites = [];
+        for (let animationPhase = 0; animationPhase < frameGroup.m_animationPhases; ++animationPhase) {
+            const effectSprite = this.generateEffectImageById(effectId, animationPhase);
+            if (effectSprite) {
+                effectSprites.push(effectSprite);
+            }
+        }
+
+        return effectSprites;
+    }
+
     generateOutfitAnimationImages(outfitId: number, frameGroupType: FrameGroupType = FrameGroupType.FrameGroupMoving) {
         if (this.datManager === null) {
             throw new Error("datManager is not set");

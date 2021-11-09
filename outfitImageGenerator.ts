@@ -4,6 +4,7 @@ import {SpriteManager} from "./modules/sprFile/spriteManager";
 import {ImageGenerator} from "./modules/imageGenerator/imageGenerator";
 import {DatThingCategory, FrameGroupType, GameFeature} from "./modules/constants/const";
 import {WebsiteImageGeneratorBase} from "./websiteImageGeneratorBase";
+import {OutfitImagePhpGeneratorCode} from "./outfitImagePhpGeneratorCode";
 
 class OutfitImageGenerator extends WebsiteImageGeneratorBase {
     private idleAnimationCheckbox: HTMLInputElement;
@@ -34,6 +35,10 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
         this.progressValue(outfitId, datManager.getCategory(DatThingCategory.ThingCategoryCreature).length);
         if (outfitId > datManager.getCategory(DatThingCategory.ThingCategoryCreature).length) {
             this.progressText('Packing images to ZIP file, please wait (it may take a while)');
+
+            const outfitImagePhpGeneratorCode = new OutfitImagePhpGeneratorCode();
+            outfitImagePhpGeneratorCode.addFilesToZip(zip);
+
             zip.generateAsync({type: "blob"}).then(function (blob: Blob) {
                 console.log('zip size', blob.size);
                 self.progressText('ZIP generated, it should start download now.');

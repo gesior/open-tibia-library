@@ -3,7 +3,7 @@
  * @author Kamil Karkus <kaker@wp.eu>
  * @author Gesior.pl <phoowned@wp.pl>
  * @copyright Copyright (c) 2012, Kamil Karkus
- * @version 3 - fixed mount animation frames
+ * @version 4 - fixed rendering with invalid parameters
  */
 
 class Outfitter {
@@ -137,42 +137,46 @@ class Outfitter {
 			$mountState = 2;
 		}
 
-		$image_outfit = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'.png');
-		if (file_exists(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'_template.png')) {
-			$image_template = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'_template.png');
-		} else {
-			$image_template = imagecreatetruecolor(imagesx($image_outfit), imagesy($image_outfit));
-			$bgcolor = imagecolorallocate($image_template, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]);
-			imagecolortransparent($image_template, $bgcolor);
+        if (self::file_exists(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_1_'.$direction.'.png')) {
+            $image_outfit = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_1_' . $direction . '.png');
+            if (file_exists(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_1_' . $direction . '_template.png')) {
+                $image_template = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_1_' . $direction . '_template.png');
+            } else {
+                $image_template = imagecreatetruecolor(imagesx($image_outfit), imagesy($image_outfit));
+                $bgcolor = imagecolorallocate($image_template, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]);
+                imagecolortransparent($image_template, $bgcolor);
 
-			imagealphablending($image_template, false);
-			imagesavealpha($image_template, true);
-		}
+                imagealphablending($image_template, false);
+                imagesavealpha($image_template, true);
+            }
 
-		if ($addons == 1 || $addons == 3) {
-			$image_first = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_2_'.$direction.'.png');
-			$this->alphaOverlay($image_outfit, $image_first, 64, 64);
-			imagedestroy($image_first);
-			if (self::file_exists(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_2_'.$direction.'_template.png'))
-			{
-				$image_first_template = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_2_'.$direction.'_template.png');
-				$this->alphaOverlay($image_template, $image_first_template, 64, 64);
-				imagedestroy($image_first_template);
-			}
-		}
-		if ($addons == 2 || $addons == 3) {
-			$image_second = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_3_'.$direction.'.png');
-			$this->alphaOverlay($image_outfit, $image_second, 64, 64);
-			imagedestroy($image_second);
-			if (self::file_exists(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_3_'.$direction.'_template.png'))
-			{
-				$image_second_template = imagecreatefrompng(self::$outfitPath . $outfit . '/'.$animation.'_' . $mountState . '_3_'.$direction.'_template.png');
-				$this->alphaOverlay($image_template, $image_second_template, 64, 64);
-				imagedestroy($image_second_template);
-			}
-		}
+            if ($addons == 1 || $addons == 3) {
+                if (self::file_exists(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_2_' . $direction . '.png')) {
+                    $image_first = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_2_' . $direction . '.png');
+                    $this->alphaOverlay($image_outfit, $image_first, 64, 64);
+                    imagedestroy($image_first);
+                    if (self::file_exists(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_2_' . $direction . '_template.png')) {
+                        $image_first_template = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_2_' . $direction . '_template.png');
+                        $this->alphaOverlay($image_template, $image_first_template, 64, 64);
+                        imagedestroy($image_first_template);
+                    }
+                }
+            }
+            if ($addons == 2 || $addons == 3) {
+                if (self::file_exists(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_3_' . $direction . '.png')) {
+                    $image_second = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_3_' . $direction . '.png');
+                    $this->alphaOverlay($image_outfit, $image_second, 64, 64);
+                    imagedestroy($image_second);
+                    if (self::file_exists(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_3_' . $direction . '_template.png')) {
+                        $image_second_template = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_3_' . $direction . '_template.png');
+                        $this->alphaOverlay($image_template, $image_second_template, 64, 64);
+                        imagedestroy($image_second_template);
+                    }
+                }
+            }
 
-		$this->colorize($image_template, $image_outfit, $head, $body, $legs, $feet);
+            $this->colorize($image_template, $image_outfit, $head, $body, $legs, $feet);
+        }
 
 		$mountAnimationFrame = $animation;
 		while ($mountAnimationFrame > self::$data['mountFramesNumber']) {
@@ -182,7 +186,9 @@ class Outfitter {
 		if ($mountState == 2 && self::file_exists(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png')) {
 			$mount = imagecreatefrompng(self::$outfitPath . $mountId . '/'.$mountAnimationFrame.'_1_1_'.$direction.'.png');
 			$this->alphaOverlay($mount, $image_outfit, 64, 64);
-			imagedestroy($image_outfit);
+            if ($image_outfit) {
+                imagedestroy($image_outfit);
+            }
 			$image_outfit = $mount;
 		}
 
@@ -202,7 +208,7 @@ class Outfitter {
 		imagealphablending($image_outfitT, false);
 		imagesavealpha($image_outfitT, true);
 		imagedestroy($image_outfit);
-		if (isset($image_template)) {
+		if (isset($image_template) && $image_template) {
 			imagedestroy($image_template);
 		}
 		return $image_outfitT;
@@ -222,6 +228,10 @@ class Outfitter {
 	}
 
 	protected function colorize(&$_image_template, &$_image_outfit, $_head, $_body, $_legs, $_feet) {
+        if (!$_image_template) {
+            return;
+        }
+
 		for ($i = 0; $i < imagesy($_image_template); $i++) {
 			for ($j = 0; $j < imagesx($_image_template); $j++) {
 				$templatepixel = imagecolorat($_image_template, $j, $i);
@@ -255,6 +265,10 @@ class Outfitter {
 	}
 
 	protected function alphaOverlay(&$destImg, &$overlayImg, $imgW, $imgH) {
+        if (!$overlayImg) {
+            return $destImg;
+        }
+
 		for ($y = 0; $y < $imgH; $y++) {
 			for ($x = 0; $x < $imgW; $x++) {
 				$ovrARGB = imagecolorat($overlayImg, $x, $y);

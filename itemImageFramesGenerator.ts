@@ -10,7 +10,6 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
 
     private onlyPickupable = true;
-    private forceEnableExtendedSprites = false;
 
     init() {
         super.init();
