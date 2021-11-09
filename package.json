@@ -29,6 +29,6 @@
   },
   "dependencies": {
     "gif.js": "^0.2.0",
-    "jszip": "^3.2.2"
+    "jszip": "^3.7.0"
   }
 }
