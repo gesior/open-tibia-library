@@ -34,8 +34,13 @@ if (isset($_FILES['items_zip']['tmp_name']) && is_uploaded_file($_FILES['items_z
     echo 'Started converter - it may take few minutes to generate GIFs!<br />';
     $converter = new ConverterPngToGifAnimation($zipFilePath, false);
     $gifImagesZipArchivePath = $generatedArchivesPath . 'items_' . microtime(true) . '.zip';
+    $framesInterval = 0.2;
+    if(isset($_POST['frames_interval']) && ((float) $_POST['frames_interval']) > 0.01) {
+        $framesInterval = (float) $_POST['frames_interval'];
+        echo 'Frames interval: ' . $framesInterval . '<br />';
+    }
     try {
-        $converter->convert($gifImagesZipArchivePath);
+        $converter->convert($gifImagesZipArchivePath, $framesInterval);
     } catch (Exception $exception) {
         exit('Exception occurred during GIF generation: ' . $exception->getMessage());
     }
@@ -75,6 +80,8 @@ if (isset($_FILES['items_zip']['tmp_name']) && is_uploaded_file($_FILES['items_z
 <form action="index.php" method="post" enctype="multipart/form-data">
     Select file <b>items.zip</b> to upload:<br/>
     <input type="file" name="items_zip"><br/>
+    Frames interval (0.2 = 5 frames per second):<br/>
+    <input type="text" name="frames_interval" value="0.2"><br/>
     <input type="submit" value="Convert to GIF" name="submit">
 </form>
 </body>

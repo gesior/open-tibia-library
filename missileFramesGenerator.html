@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Missile Frames Generator - OpenTibiaLibrary</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+<h2>Missile frames generator</h2>
+<blockquote>
+    How to use:<br/><br/>
+    1. Type version of Tibia client.<br/>
+    2. Select SPR and DAT files.<br/>
+    3. Click "LOAD FILES", watch "Progress".<br/>
+    4. Click "GENERATE IMAGES", wait for ZIP file download.<br/>
+    5. Convert generated PNG images into animations using:<br/>
+    <a href="https://item-images.ots.me/png-to-gif-converter/">https://item-images.ots.me/png-to-gif-converter/</a><br/>
+    You can also download <a href="https://github.com/gesior/open-tibia-library">https://github.com/gesior/open-tibia-library</a>
+    and use command line PHP script <b>"tools/item-image-frames-to-animated-gif-converter/cli_convert.php"</b>
+    to convert it into animations on your PC<br/>
+    <br/>
+    <b>FILES ARE NOT SEND TO SERVER! EVERYTHING IS GENERATED ON YOUR COMPUTER.</b><br/>
+    <br/>
+    (Enable Developer console in webbrowser to get more information about problems/progress)
+</blockquote>
+Client Version: <input type="number" id="clientversion" value="860"/> (format 860, NOT 8.60)<br/>
+Sprite file: <input type="file" id="spr"/><br/>
+Dat file: <input type="file" id="dat"/><br/>
+Force enable extended sprites: <input type="checkbox" id="forceEnableExtendedSprites"/> (for old clients .dat and .spr
+with this feature enabled)<br/>
+<br/>
+<button id="loadFiles">LOAD FILES</button>
+<br/>
+<br/>
+<button id="generateImages">GENERATE IMAGES</button>
+<br/>
+<br/>
+<b>Progress:</b> <span id="progressBar">Not running</span><br/>
+<script src="js/vendor.js"></script>
+<script src="js/missileFramesGenerator.js"></script>
+</body>
+</html>
