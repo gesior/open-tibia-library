@@ -1,10 +1,10 @@
 <?php
 
-include_once(__DIR__ . '/gifCreator.php');
+include_once(__DIR__ . '/apngCreator.php');
 
-class ConverterPngToGifAnimation
+class ConverterPngToApngAnimation
 {
-    private static $transparentBackgroundColor = [255, 0, 255];
+    private static $transparentBackgroundColor = [255, 255, 255, 127];
     /**
      * @var string
      */
@@ -64,11 +64,12 @@ class ConverterPngToGifAnimation
             for ($frame = 0; $frame < $framesCount; ++$frame) {
                 $animationFrameImage = imagecreatetruecolor($frameWidth, $height);
 
-                $transparentBackgroundColor = imagecolorallocate(
+                $transparentBackgroundColor = imagecolorallocatealpha(
                     $animationFrameImage,
                     self::$transparentBackgroundColor[0],
                     self::$transparentBackgroundColor[1],
-                    self::$transparentBackgroundColor[2]
+                    self::$transparentBackgroundColor[2],
+                    self::$transparentBackgroundColor[3]
                 );
                 imagefill($animationFrameImage, 0, 0, $transparentBackgroundColor);
                 imagecolortransparent($animationFrameImage, $transparentBackgroundColor);
@@ -89,14 +90,16 @@ class ConverterPngToGifAnimation
                 );
 
                 $animationFrameImages[] = $animationFrameImage;
-                $animationFrameDurations[] = $animationFrameDurationInSeconds * 100;
+                $animationFrameDurations[] = $animationFrameDurationInSeconds * 1000;
             }
 
-            $gc = new GifCreator();
-            $gc->create($animationFrameImages, $animationFrameDurations, 0);
-            $gifBinary = $gc->getGif();
-            $gitImagesZipArchive->addFromString('item_gifs/' . $itemId . '.gif', $gifBinary);
-            $gitImagesZipArchive->setCompressionName('item_gifs/' . $itemId . '.gif', ZipArchive::CM_STORE);
+            $apngCreatore = new ApngCreator();
+            foreach ($animationFrameImages as $i => $animationFrameImage) {
+                $apngCreatore->add_image($animationFrameImage, "MIDDLE_CENTER", $animationFrameDurations[$i]);
+            }
+            $apngBinary = $apngCreatore->getAPNG();
+            $gitImagesZipArchive->addFromString('item_apngs/' . $itemId . '.png', $apngBinary);
+            $gitImagesZipArchive->setCompressionName('item_apngs/' . $itemId . '.png', ZipArchive::CM_STORE);
             if ($this->printProgress) {
                 echo 'Generated ' . $itemId . ', frames: ' . $framesCount . PHP_EOL;
             }
