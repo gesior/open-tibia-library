@@ -138,6 +138,7 @@ export enum DatThingAttr {
     ThingAttrWrapable = 35,
     ThingAttrUnwrapable = 36,
     ThingAttrTopEffect = 37,
+    ThingAttrBones = 38, // OTCv8 feature
 
     // additional
     ThingAttrOpacity = 100,

@@ -11,6 +11,7 @@ import {MarketData} from "../structures/marketData";
 import {Light} from "../structures/light";
 import {OutputFile} from "../fileHandlers/outputFile";
 import {FrameGroup} from "./frameGroup";
+import {BonesData} from "../structures/bonesData";
 
 export class DatThingType {
     static maskColors = [Color.red, Color.green, Color.blue, Color.yellow];
@@ -56,6 +57,18 @@ export class DatThingType {
                         fin.addString(market.name);
                         fin.addU16(market.restrictVocation);
                         fin.addU16(market.requiredLevel);
+                        break;
+                    }
+                    case DatThingAttr.ThingAttrBones: { // 'Oen44' OTCv8 extra parameter for Wings, 8x U16
+                        const bones: BonesData = this.m_attribs.get(thingAttr);
+                        fin.addU16(bones.north_x);
+                        fin.addU16(bones.north_y);
+                        fin.addU16(bones.south_x);
+                        fin.addU16(bones.south_y);
+                        fin.addU16(bones.east_x);
+                        fin.addU16(bones.east_y);
+                        fin.addU16(bones.west_x);
+                        fin.addU16(bones.west_y);
                         break;
                     }
                     case DatThingAttr.ThingAttrUsable:
@@ -158,6 +171,19 @@ export class DatThingType {
                     market.restrictVocation = fin.getU16();
                     market.requiredLevel = fin.getU16();
                     this.m_attribs.set(attr, market);
+                    break;
+                }
+                case DatThingAttr.ThingAttrBones: { // 'Oen44' OTCv8 extra parameter for Wings, 8x U16
+                    let bones = new BonesData();
+                    bones.north_x = fin.getU16();
+                    bones.north_y = fin.getU16();
+                    bones.south_x = fin.getU16();
+                    bones.south_y = fin.getU16();
+                    bones.east_x = fin.getU16();
+                    bones.east_y = fin.getU16();
+                    bones.west_x = fin.getU16();
+                    bones.west_y = fin.getU16();
+                    this.m_attribs.set(attr, bones);
                     break;
                 }
                 case DatThingAttr.ThingAttrElevation: {

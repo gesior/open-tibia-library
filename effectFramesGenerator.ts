@@ -7,16 +7,21 @@ import {WebsiteImageGeneratorBase} from "./websiteImageGeneratorBase";
 
 class EffectFramesGenerator extends WebsiteImageGeneratorBase {
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
+    private enableTransparencyCheckbox: HTMLInputElement;
 
     init() {
         this.otbRequired = false;
         super.init();
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
+        this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
     }
 
     afterSetClientVersion() {
         if (this.forceEnableExtendedSpritesCheckbox.checked) {
             this.client.enableFeature(GameFeature.GameSpritesU32);
+        }
+        if (this.enableTransparencyCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
         }
     }
 

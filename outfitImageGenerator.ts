@@ -9,6 +9,7 @@ import {OutfitImagePhpGeneratorCode} from "./outfitImagePhpGeneratorCode";
 class OutfitImageGenerator extends WebsiteImageGeneratorBase {
     private idleAnimationCheckbox: HTMLInputElement;
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
+    private enableTransparencyCheckbox: HTMLInputElement;
 
     private idleAnimation = true;
 
@@ -17,11 +18,15 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
         super.init();
         this.idleAnimationCheckbox = <HTMLInputElement>document.getElementById('idleAnimation');
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
+        this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
     }
 
     afterSetClientVersion() {
         if (this.forceEnableExtendedSpritesCheckbox.checked) {
             this.client.enableFeature(GameFeature.GameSpritesU32);
+        }
+        if (this.enableTransparencyCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
         }
     }
 
