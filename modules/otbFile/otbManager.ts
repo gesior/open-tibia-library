@@ -166,4 +166,9 @@ export class OtbManager {
         this.m_itemTypes[itemType.getServerId()] = itemType;
         this.m_reverseItemTypes[itemType.getClientId()] = itemType;
     }
+
+    removeItemType(itemType: OtbItemType) {
+        this.m_itemTypes[itemType.getServerId()] = undefined;
+        this.m_reverseItemTypes[itemType.getClientId()] = undefined;
+    }
 }

@@ -14,7 +14,8 @@ module.exports = {
     missileFramesGenerator: ['babel-polyfill', './missileFramesGenerator.ts'],
     itemImageGenerator: ['babel-polyfill', './itemImageGenerator.ts'],
     itemImageFramesGenerator: ['babel-polyfill', './itemImageFramesGenerator.ts'],
-    outfitImageGenerator: ['babel-polyfill', './outfitImageGenerator.ts']
+    outfitImageGenerator: ['babel-polyfill', './outfitImageGenerator.ts'],
+    otbEditor: ['babel-polyfill', './otbEditor.ts']
   },
   output: {
     filename: '[name].js',

@@ -328,6 +328,10 @@ export class DatThingType {
         return this.m_attribs.get(DatThingAttr.ThingAttrMarket);
     }
 
+    getBones(): BonesData {
+        return this.m_attribs.get(DatThingAttr.ThingAttrBones);
+    }
+
     isGround(): boolean {
         return this.m_attribs.has(DatThingAttr.ThingAttrGround);
     }
@@ -450,6 +454,10 @@ export class DatThingType {
 
     hasLensHelp(): boolean {
         return this.m_attribs.has(DatThingAttr.ThingAttrLensHelp);
+    }
+
+    hasBones(): boolean {
+        return this.m_attribs.has(DatThingAttr.ThingAttrBones);
     }
 
     isFullGround(): boolean {

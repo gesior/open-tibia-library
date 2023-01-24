@@ -66,6 +66,11 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
             return;
         }
 
+        let outfitThingType = this.datManager.getOutfit(outfitId);
+        if (outfitThingType && outfitThingType.hasBones()) {
+            zip.file('outfits_anim/' + outfitId + '/bones.json', JSON.stringify(outfitThingType.getBones()));
+        }
+
         let spritesToProcess = outfitSprites.length;
         for (let outfitSprite of outfitSprites) {
             const canvas = <HTMLCanvasElement>document.createElement('canvas');
