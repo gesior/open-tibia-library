@@ -12,6 +12,7 @@ import {Light} from "../structures/light";
 import {OutputFile} from "../fileHandlers/outputFile";
 import {FrameGroup} from "./frameGroup";
 import {BonesData} from "../structures/bonesData";
+import {SortedDatAttribute} from "../structures/sortedDatAttribute";
 
 export class DatThingType {
     static maskColors = [Color.red, Color.green, Color.blue, Color.yellow];
@@ -26,64 +27,62 @@ export class DatThingType {
 
     private m_frameGroups: FrameGroup[] = [];
 
-    serialize(fin: OutputFile, category: DatThingCategory, client: Client, clientAttributeTranslator) {
-        for (let clientAttrString in clientAttributeTranslator) {
-            if (clientAttributeTranslator.hasOwnProperty(clientAttrString)) {
-                let clientDatAttr = parseInt(clientAttrString);
-                let thingAttr = parseInt(clientAttributeTranslator[clientDatAttr]);
-                if (!this.hasAttr(thingAttr))
-                    continue;
+    serialize(fin: OutputFile, category: DatThingCategory, client: Client, clientAttributeTranslator: SortedDatAttribute[]) {
+        for (let sortedDatAttribute of clientAttributeTranslator) {
+            let clientDatAttr = sortedDatAttribute.clientDatAttr;
+            let thingAttr = sortedDatAttribute.thingAttr;
+            if (!this.hasAttr(thingAttr))
+                continue;
 
-                fin.addU8(clientDatAttr);
-                switch (thingAttr) {
-                    case DatThingAttr.ThingAttrDisplacement: {
-                        if (client.getClientVersion() >= 755) {
-                            fin.addU16(this.m_displacement.x);
-                            fin.addU16(this.m_displacement.y);
-                        }
-                        break;
+            fin.addU8(clientDatAttr);
+            switch (thingAttr) {
+                case DatThingAttr.ThingAttrDisplacement: {
+                    if (client.getClientVersion() >= 755) {
+                        fin.addU16(this.m_displacement.x);
+                        fin.addU16(this.m_displacement.y);
                     }
-                    case DatThingAttr.ThingAttrLight: {
-                        const light: Light = this.m_attribs.get(thingAttr);
-                        fin.addU16(light.intensity);
-                        fin.addU16(light.color);
-                        break;
-                    }
-                    case DatThingAttr.ThingAttrMarket: {
-                        const market: MarketData = this.m_attribs.get(thingAttr);
-                        fin.addU16(market.category);
-                        fin.addU16(market.tradeAs);
-                        fin.addU16(market.showAs);
-                        fin.addString(market.name);
-                        fin.addU16(market.restrictVocation);
-                        fin.addU16(market.requiredLevel);
-                        break;
-                    }
-                    case DatThingAttr.ThingAttrBones: { // 'Oen44' OTCv8 extra parameter for Wings, 8x U16
-                        const bones: BonesData = this.m_attribs.get(thingAttr);
-                        fin.addU16(bones.north_x);
-                        fin.addU16(bones.north_y);
-                        fin.addU16(bones.south_x);
-                        fin.addU16(bones.south_y);
-                        fin.addU16(bones.east_x);
-                        fin.addU16(bones.east_y);
-                        fin.addU16(bones.west_x);
-                        fin.addU16(bones.west_y);
-                        break;
-                    }
-                    case DatThingAttr.ThingAttrUsable:
-                    case DatThingAttr.ThingAttrElevation:
-                    case DatThingAttr.ThingAttrGround:
-                    case DatThingAttr.ThingAttrWritable:
-                    case DatThingAttr.ThingAttrWritableOnce:
-                    case DatThingAttr.ThingAttrMinimapColor:
-                    case DatThingAttr.ThingAttrCloth:
-                    case DatThingAttr.ThingAttrLensHelp:
-                        fin.addU16(this.m_attribs.get(thingAttr));
-                        break;
-                    default:
-                        break;
+                    break;
                 }
+                case DatThingAttr.ThingAttrLight: {
+                    const light: Light = this.m_attribs.get(thingAttr);
+                    fin.addU16(light.intensity);
+                    fin.addU16(light.color);
+                    break;
+                }
+                case DatThingAttr.ThingAttrMarket: {
+                    const market: MarketData = this.m_attribs.get(thingAttr);
+                    fin.addU16(market.category);
+                    fin.addU16(market.tradeAs);
+                    fin.addU16(market.showAs);
+                    fin.addString(market.name);
+                    fin.addU16(market.restrictVocation);
+                    fin.addU16(market.requiredLevel);
+                    break;
+                }
+                case DatThingAttr.ThingAttrBones: { // 'Oen44' OTCv8 extra parameter for Wings, 8x U16
+                    const bones: BonesData = this.m_attribs.get(thingAttr);
+                    fin.addU16(bones.north_x);
+                    fin.addU16(bones.north_y);
+                    fin.addU16(bones.south_x);
+                    fin.addU16(bones.south_y);
+                    fin.addU16(bones.east_x);
+                    fin.addU16(bones.east_y);
+                    fin.addU16(bones.west_x);
+                    fin.addU16(bones.west_y);
+                    break;
+                }
+                case DatThingAttr.ThingAttrUsable:
+                case DatThingAttr.ThingAttrElevation:
+                case DatThingAttr.ThingAttrGround:
+                case DatThingAttr.ThingAttrWritable:
+                case DatThingAttr.ThingAttrWritableOnce:
+                case DatThingAttr.ThingAttrMinimapColor:
+                case DatThingAttr.ThingAttrCloth:
+                case DatThingAttr.ThingAttrLensHelp:
+                    fin.addU16(this.m_attribs.get(thingAttr));
+                    break;
+                default:
+                    break;
             }
         }
         fin.addU8(DatThingAttr.ThingLastAttr);

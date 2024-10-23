@@ -6,12 +6,14 @@ import {g_resources} from "../resources";
 import {OutputFile} from "../fileHandlers/outputFile";
 import {Client} from "../client";
 import {sortObjectByKey} from "../constants/helpers";
+import {SortedDatAttribute} from "../structures/sortedDatAttribute";
 
 export class DatManager {
     private static m_nullThingType = new DatThingType();
     private readonly m_thingTypes: DatThingType[][] = [];
     private m_datSignature: number = 0;
     private m_contentRevision: number = 0;
+    public data;
 
     constructor(public m_client: Client) {
         for (let i = DatThingCategory.ThingCategoryItem; i < DatThingCategory.ThingLastCategory; ++i) {
@@ -114,7 +116,7 @@ export class DatManager {
             fin.addU16(this.m_thingTypes[category].length - 1);
         }
 
-        const clientTranslationArray = this.getClientTranslationArray();
+        const clientTranslationArray = this.getSortedClientTranslationArray();
 
         for (let category = 0; category < DatThingCategory.ThingLastCategory; ++category) {
             let firstId = 1;
@@ -202,8 +204,40 @@ export class DatManager {
             }
             clientAttributesTranslator[clientDatAttribute] = thingAttr;
         }
+        clientAttributesTranslator[DatThingAttr.ThingAttrChargeable] = DatThingAttr.ThingAttrChargeable;
+        clientAttributesTranslator[DatThingAttr.ThingLastAttr] = DatThingAttr.ThingLastAttr;
 
         return sortObjectByKey(clientAttributesTranslator);
     }
 
+    getAttributesSortedAsInOfficialClient(): number[] {
+        // let c = [];
+        // c.push(254);
+        // for (let i = 0; i <= 38; i++) {
+        //     c.push(i);
+        // }
+        // return c;
+        if (this.m_client.getClientVersion() < 780) {
+            return [254, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 33, 22, 23, 24, 34, 25, 26, 27, 28, 32, 29, 30, 35, 31, 36, 37, 38];
+        } else if (this.m_client.getClientVersion() < 860) {
+            return [254, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 33, 22, 23, 24, 34, 25, 26, 27, 28, 32, 29, 30, 35, 31, 36, 37, 38];
+        } else if (this.m_client.getClientVersion() < 900) {
+            return [254, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 32, 21, 33, 22, 23, 24, 34, 25, 26, 27, 31, 28, 29, 30, 35, 36, 37, 38];
+        } else if (this.m_client.getClientVersion() < 1000) {
+            return [254, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 32, 21, 33, 22, 23, 24, 34, 25, 26, 27, 31, 28, 29, 30, 35, 36, 37, 38];
+        } else {
+            return [254, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 33, 22, 23, 24, 34, 25, 26, 27, 28, 32, 29, 30, 35, 31, 36, 37, 38];
+        }
+    }
+    getSortedClientTranslationArray(): SortedDatAttribute[] {
+        let sortedAsInOfficialClient = this.getAttributesSortedAsInOfficialClient();
+
+        let sortedDatAttributes = [];
+        const clientAttributeTranslator: any = this.getClientTranslationArray();
+        for (let sortId of sortedAsInOfficialClient) {
+            sortedDatAttributes.push(new SortedDatAttribute(sortId, clientAttributeTranslator[sortId]));
+        }
+
+        return sortedDatAttributes;
+    }
 }

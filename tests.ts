@@ -40,6 +40,32 @@ async function testGenerateAllItemImages() {
     });
 
 }
+async function testGenerateAllDat() {
+    const serverUrl = 'http://127.0.0.1/otsfiles/';
+
+    // for (let clientVersion of [710, 713, 721, 723, 724, 726, 727, 730, 740, 741, 750, 760, 770, 772, 780, 781, 790, 792, 800, 811, 820, 821, 822, 830, 831, 840, 841, 842, 850, 852, 853, 854, 855, 856, 857, 860, 861, 862, 870, 871, 900, 910, 920, 931, 940, 941, 942, 943, 944, 946, 952, 954, 960, 970, 971, 980, 981, 1010, 1020, 1035, 1036, 1037, 1038, 1041, 1050, 1055, 1057, 1059, 1061, 1063, 1064, 1070, 1071, 1073, 1075, 1076, 1077, 1078, 1079, 1080, 1081, 1082, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1097, 1098, 1099]) {
+    for (let clientVersion of [760, 770, 772, 780, 781, 790, 792, 800, 811, 820, 821, 822, 830, 831, 840, 841, 842, 850, 852, 853, 854, 855, 856, 857, 860, 861, 862, 870, 871, 900, 910, 920, 931, 940, 941, 942, 943, 944, 946, 952, 954, 960, 970, 971, 980, 981, 1010, 1020, 1035, 1036, 1037, 1038, 1041, 1050, 1055, 1057, 1059, 1061, 1063, 1064, 1070, 1071, 1073, 1075, 1076, 1077, 1078, 1079, 1080, 1081, 1082, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1097, 1098, 1099]) {
+    // for (let clientVersion of [760, 792, 800, 811, 852, 857, 860, 960, 970, 1055, 1057, 1076, 1077, 1099]) {
+        const client = new Client();
+        client.setClientVersion(clientVersion);
+
+        console.log('cv:', clientVersion);
+        const datManager = new DatManager(client);
+        await datManager.loadDatFromUrl(serverUrl + clientVersion + '/Tibia.dat').then(datLoaded => {
+            console.log('loaded dat', datLoaded, clientVersion)
+        });
+
+        let otbFile = datManager.saveDat();
+        let a = document.createElement('a');
+        let url = window.URL.createObjectURL(new Blob(new Array(otbFile.getUint8Array())));
+        a.href = url;
+        a.download = 'Tibia' + clientVersion + '.dat';
+        console.log('dw:', a.download, otbFile.tell());
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    }
+}
 
 async function testLoadFromUrlsAndDrawImage() {
     const client = new Client();
@@ -193,7 +219,8 @@ async function testFilePicker() {
 }
 
 // testGenerateAllItemImages();
-testLoadFromUrlsAndDrawImage();
+// testLoadFromUrlsAndDrawImage();
+testGenerateAllDat();
 // testFilePicker();
 /*
 download OTB:
