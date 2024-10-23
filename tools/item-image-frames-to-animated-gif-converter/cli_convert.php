@@ -22,14 +22,15 @@ $zipFilePath = $argv[2];
 $startTime = time();
 
 echo 'Started converter - it may take few minutes to generate APNGs/GIFs!' . PHP_EOL;
+$loadFolder = substr($zipFilePath, -4, 4) !== '.zip';
 if ($exportFormat == 'APNG') {
-    $converter = new ConverterPngToApngAnimation($zipFilePath, true);
+    $converter = new ConverterPngToApngAnimation($zipFilePath, true, $loadFolder);
 } else {
-    $converter = new ConverterPngToGifAnimation($zipFilePath, true);
+    $converter = new ConverterPngToGifAnimation($zipFilePath, true, $loadFolder);
 }
 $animatedImagesZipArchivePath = './generated-zip-archives/items_' . microtime(true) . '.zip';
 try {
-    $converter->convert($animatedImagesZipArchivePath);
+    $converter->convert($animatedImagesZipArchivePath, 0.2);
 } catch (Exception $exception) {
     exit('Exception occurred during APNG/GIF generation: ' . $exception->getMessage());
 }

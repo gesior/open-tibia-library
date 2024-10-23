@@ -1,28 +1,10 @@
 <?php
 
+include_once(__DIR__ . '/abstractPngConverterAnimation.php');
 include_once(__DIR__ . '/apngCreator.php');
 
-class ConverterPngToApngAnimation
+class ConverterPngToApngAnimation extends AbstractPngConverterAnimation
 {
-    private static $transparentBackgroundColor = [255, 255, 255, 127];
-    /**
-     * @var string
-     */
-    private $zipFilePath;
-    /**
-     * @var bool
-     */
-    private $printProgress;
-
-    /**
-     * @param string $zipFilePath
-     */
-    public function __construct($zipFilePath, $printProgress = true)
-    {
-        $this->zipFilePath = $zipFilePath;
-        $this->printProgress = $printProgress;
-    }
-
     /**
      * @param string $saveToPath
      * @param float $animationFrameDurationInSeconds
@@ -35,7 +17,7 @@ class ConverterPngToApngAnimation
             throw new InvalidArgumentException('Failed to create ZIP archive: ' . $saveToPath);
         }
 
-        foreach ($this->getFilesFromZip() as $fileName => $fileContents) {
+        foreach ($this->getInputFiles() as $fileName => $fileContents) {
             $fileBaseName = basename($fileName);
             if (substr($fileName, -4, 4) !== '.png') {
                 echo $fileName . ' is not PNG' . PHP_EOL;
@@ -104,33 +86,8 @@ class ConverterPngToApngAnimation
                 echo 'Generated ' . $itemId . ', frames: ' . $framesCount . PHP_EOL;
             }
         }
-        echo 'Saving GIF images to ' . $saveToPath . '... ';
+        echo 'Saving PNG images to ' . $saveToPath . '... ';
         $gitImagesZipArchive->close();
         echo 'SAVED' . PHP_EOL;
-    }
-
-    public function getFilesFromZip()
-    {
-        $zip = new ZipArchive();
-        if ($zip->open($this->zipFilePath) === true) {
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $fileName = $zip->getNameIndex($i);
-
-                $fileHandler = $zip->getStream($fileName);
-                if ($fileHandler === false) {
-                    throw new InvalidArgumentException('Failed to read ZIP file: ' . $fileName);
-                }
-                $fileContents = stream_get_contents($fileHandler);
-                if ($fileContents === false) {
-                    throw new InvalidArgumentException('Failed to read ZIP file contents: ' . $fileName);
-                }
-                fclose($fileHandler);
-
-                yield $fileName => $fileContents;
-            }
-            $zip->close();
-        } else {
-            throw new InvalidArgumentException('Failed to open ZIP archive.');
-        }
     }
 }
