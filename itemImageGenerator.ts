@@ -12,9 +12,11 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
     private enableTransparencyCheckbox: HTMLInputElement;
     private useDatItemIdsAsImageIdsCheckbox: HTMLInputElement;
+    private itemServerIdStartGenerationInput: HTMLInputElement;
 
     private onlyPickable = true;
     private useDatItemIdsAsImageIds = false;
+    private itemServerIdStartGenerationValue = 0;
 
     init() {
         super.init();
@@ -22,6 +24,7 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
         this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
         this.useDatItemIdsAsImageIdsCheckbox = <HTMLInputElement>document.getElementById('useDatItemIdsAsImageIds');
+        this.itemServerIdStartGenerationInput = <HTMLInputElement>document.getElementById('itemServerIdStartGeneration');
     }
 
     afterSetClientVersion() {
@@ -32,12 +35,14 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
             this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
         }
         this.otbRequired = !this.useDatItemIdsAsImageIdsCheckbox.checked;
+
+        this.itemServerIdStartGenerationValue = parseInt(this.itemServerIdStartGenerationInput.value);
     }
 
     startImageGenerator(imageGenerator: ImageGenerator, otbManager: OtbManager, datManager: DatManager, spriteManager: SpriteManager, zip) {
         this.onlyPickable = this.onlyPickableCheckbox.checked;
         this.useDatItemIdsAsImageIds = this.useDatItemIdsAsImageIdsCheckbox.checked;
-        this.generateItemImage(imageGenerator, zip, 0);
+        this.generateItemImage(imageGenerator, zip, this.itemServerIdStartGenerationValue);
     }
 
     generateItemImage(imageGenerator: ImageGenerator, zip, serverId: number) {
