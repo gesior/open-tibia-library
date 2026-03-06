@@ -2,7 +2,7 @@
 
 $outfitImagesPath = './outfits_anim/';
 // resize all outfits to 64x64 pixels, place smaller outfits in bottom-right corner
-$resizeAllOutfitsTo64px = false;
+$resizeAllOutfitsTo64px = true;
 
 // animation speeds: number of animation frames => time in 0.01 of second
 $walkSpeeds = [
