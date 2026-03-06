@@ -119,7 +119,11 @@ class GifCreator
             }
 
             if ($i == 0) {
-                $colour = imagecolortransparent($resourceImg);
+                $transparentIndex = imagecolortransparent($resourceImg);
+                if ($transparentIndex >= 0 && (imageistruecolor($resourceImg) || $transparentIndex < imagecolorstotal($resourceImg))) {
+                    $colors = imagecolorsforindex($resourceImg, $transparentIndex);
+                    $colour = ($colors['red'] << 16) | ($colors['green'] << 8) | $colors['blue'];
+                }
             }
 
             if (substr($this->frameSources[$i], 0, 6) != 'GIF87a' && substr(

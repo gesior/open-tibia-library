@@ -3,7 +3,7 @@
  * @author Kamil Karkus <kaker@wp.eu>
  * @author Gesior.pl <phoowned@wp.pl>
  * @copyright Copyright (c) 2012, Kamil Karkus
- * @version 5 - fixed white pixels transparency
+ * @version 6 - fixed background transparency in GIFs
  */
 
 class Outfitter {
@@ -200,14 +200,20 @@ class Outfitter {
 		} else {
 			$image_outfitT = imagecreatetruecolor($width, $height);
 		}
-		imagefill($image_outfitT, 0, 0, $bgcolor = imagecolorallocatealpha($image_outfitT, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2], self::$transparentBackgroundColor[3]));
+		
+		// Use a specific color for transparency (Magenta: 255, 0, 255)
+		$bgcolor = imagecolorallocate($image_outfitT, 255, 0, 255);
+		imagefill($image_outfitT, 0, 0, $bgcolor);
 
 		imagecopyresampled($image_outfitT, $image_outfit, imagesx($image_outfitT)-$width, imagesy($image_outfitT)-$height, 0, 0, $width, $height, $width, $height);
 
-		imagecolortransparent($image_outfitT, $bgcolor);
+		// Convert truecolor image to palette to fix GIF transparency loss issue
+		imagetruecolortopalette($image_outfitT, false, 255);
+		
+		// Get the exact transparent index and assign it
+		$transparentIndex = imagecolorclosest($image_outfitT, 255, 0, 255);
+		imagecolortransparent($image_outfitT, $transparentIndex);
 
-		imagealphablending($image_outfitT, false);
-		imagesavealpha($image_outfitT, true);
 		imagedestroy($image_outfit);
 		if (isset($image_template) && $image_template) {
 			imagedestroy($image_template);
