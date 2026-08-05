@@ -3,7 +3,7 @@
  * @author Kamil Karkus <kaker@wp.eu>
  * @author Gesior.pl <phoowned@wp.pl>
  * @copyright Copyright (c) 2012, Kamil Karkus
- * @version 6 - fixed background transparency in GIFs
+ * @version 7 - fixed black halo around semi-transparent (glow) pixels
  */
 
 class Outfitter
@@ -494,28 +494,35 @@ class Outfitter
 
         $width = imagesx($image_outfit);
         $height = imagesy($image_outfit);
-        if (self::$resizeAllOutfitsTo64px) {
-            $image_outfitT = imagecreatetruecolor(64, 64);
-        } else {
-            $image_outfitT = imagecreatetruecolor($width, $height);
-        }
+        $tw = self::$resizeAllOutfitsTo64px ? 64 : $width;
+        $th = self::$resizeAllOutfitsTo64px ? 64 : $height;
+
+        $image_outfitT = imagecreatetruecolor($tw, $th);
+        imagealphablending($image_outfitT, false);
+        imagesavealpha($image_outfitT, true);
 
         // Use a specific color for transparency (Magenta: 255, 0, 255)
         $bgcolor = imagecolorallocate($image_outfitT, 255, 0, 255);
-        imagefill($image_outfitT, 0, 0, $bgcolor);
+        imagefilledrectangle($image_outfitT, 0, 0, $tw - 1, $th - 1, $bgcolor);
 
-        imagecopyresampled(
-            $image_outfitT,
-            $image_outfit,
-            imagesx($image_outfitT) - $width,
-            imagesy($image_outfitT) - $height,
-            0,
-            0,
-            $width,
-            $height,
-            $width,
-            $height
-        );
+        $offX = $tw - $width;
+        $offY = $th - $height;
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $argb = imagecolorat($image_outfit, $x, $y);
+                $gdA = ($argb >> 24) & 0x7F;   // 0 = opaco .. 127 = transparente
+                if ($gdA >= 64) {
+                    continue;                   // > 50% transparente -> deixa magenta (transparente)
+                }
+                $r = ($argb >> 16) & 0xFF;
+                $g = ($argb >> 8) & 0xFF;
+                $b = $argb & 0xFF;
+                if ($r == 255 && $g == 0 && $b == 255) {
+                    $b = 254;                   // evita colidir com a cor-chave magenta
+                }
+                imagesetpixel($image_outfitT, $offX + $x, $offY + $y, imagecolorallocate($image_outfitT, $r, $g, $b));
+            }
+        }
 
         // Convert truecolor image to palette to fix GIF transparency loss issue
         imagetruecolortopalette($image_outfitT, false, 255);
@@ -597,35 +604,46 @@ class Outfitter
             return $destImg;
         }
 
+        imagealphablending($destImg, false);
+        imagesavealpha($destImg, true);
+
         for ($y = 0; $y < $imgH; $y++) {
             for ($x = 0; $x < $imgW; $x++) {
                 $ovrARGB = imagecolorat($overlayImg, $x, $y);
-                $ovrA = ($ovrARGB >> 24) << 1;
-                $ovrR = $ovrARGB >> 16 & 0xFF;
-                $ovrG = $ovrARGB >> 8 & 0xFF;
+                $ovrGdA = ($ovrARGB >> 24) & 0x7F;
+                if ($ovrGdA == 127) {
+                    continue;
+                }
+
+                $ovrR = ($ovrARGB >> 16) & 0xFF;
+                $ovrG = ($ovrARGB >> 8) & 0xFF;
                 $ovrB = $ovrARGB & 0xFF;
+                $sa = (127 - $ovrGdA) / 127.0;
 
-                $change = false;
-                if ($ovrA == 0) {
-                    $dstR = $ovrR;
-                    $dstG = $ovrG;
-                    $dstB = $ovrB;
-                    $change = true;
-                } elseif ($ovrA < 254) {
-                    $dstARGB = imagecolorat($destImg, $x, $y);
-                    $dstR = $dstARGB >> 16 & 0xFF;
-                    $dstG = $dstARGB >> 8 & 0xFF;
-                    $dstB = $dstARGB & 0xFF;
+                if ($sa >= 1.0) {
+                    imagesetpixel($destImg, $x, $y, imagecolorallocatealpha($destImg, $ovrR, $ovrG, $ovrB, 0));
+                    continue;
+                }
 
-                    $dstR = (($ovrR * (0xFF - $ovrA)) >> 8) + (($dstR * $ovrA) >> 8);
-                    $dstG = (($ovrG * (0xFF - $ovrA)) >> 8) + (($dstG * $ovrA) >> 8);
-                    $dstB = (($ovrB * (0xFF - $ovrA)) >> 8) + (($dstB * $ovrA) >> 8);
-                    $change = true;
+                $dstARGB = imagecolorat($destImg, $x, $y);
+                $dstGdA = ($dstARGB >> 24) & 0x7F;
+                $da = (127 - $dstGdA) / 127.0;
+
+                $outA = $sa + $da * (1 - $sa);
+                if ($outA <= 0) {
+                    continue;
                 }
-                if ($change) {
-                    $dstRGB = imagecolorallocatealpha($destImg, $dstR, $dstG, $dstB, 0);
-                    imagesetpixel($destImg, $x, $y, $dstRGB);
-                }
+
+                $dstR = ($dstARGB >> 16) & 0xFF;
+                $dstG = ($dstARGB >> 8) & 0xFF;
+                $dstB = $dstARGB & 0xFF;
+
+                $outR = (int)round(($ovrR * $sa + $dstR * $da * (1 - $sa)) / $outA);
+                $outG = (int)round(($ovrG * $sa + $dstG * $da * (1 - $sa)) / $outA);
+                $outB = (int)round(($ovrB * $sa + $dstB * $da * (1 - $sa)) / $outA);
+                $outGdA = (int)round((1 - $outA) * 127);
+
+                imagesetpixel($destImg, $x, $y, imagecolorallocatealpha($destImg, $outR, $outG, $outB, $outGdA));
             }
         }
         return $destImg;
