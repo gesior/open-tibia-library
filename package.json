@@ -1,6 +1,6 @@
 {
   "name": "@gesior/open-tibia-library",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Library to read and write Tibia/OTS DAT, SPR and OTB files",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,14 +36,10 @@
     "otb"
   ],
   "devDependencies": {
-    "@types/node": "13.9.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.0",
-    "babel-polyfill": "^6.3.0",
-    "babel-preset-env": "^1.7.0",
-    "path": "*",
-    "ts-loader": "^3.0",
-    "typescript": "^2.6",
-    "webpack": "^3.12"
+    "@types/node": "^22.18.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.2",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1"
   }
 }

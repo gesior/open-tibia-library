@@ -184,7 +184,7 @@ export class DataBuffer {
         if (offset + bytesCount > this.size())
             throw new Error("Invalid offset. Cannot read.");
 
-        return this.m_buffer.buffer.slice(offset, offset + bytesCount);
+        return this.m_buffer.buffer.slice(offset, offset + bytesCount) as ArrayBuffer;
     }
 
     getPosition(offset: number): Position {
