@@ -8,12 +8,16 @@ import {WebsiteImageGeneratorBase} from "./websiteImageGeneratorBase";
 class MissileFramesGenerator extends WebsiteImageGeneratorBase {
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
     private enableTransparencyCheckbox: HTMLInputElement;
+    private enableEnhancedAnimationsCheckbox: HTMLInputElement;
+    private enableIdleAnimationsCheckbox: HTMLInputElement;
 
     init() {
         this.otbRequired = false;
         super.init();
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
         this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
+        this.enableEnhancedAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableEnhancedAnimations');
+        this.enableIdleAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableIdleAnimations');
     }
 
     afterSetClientVersion() {
@@ -22,6 +26,12 @@ class MissileFramesGenerator extends WebsiteImageGeneratorBase {
         }
         if (this.enableTransparencyCheckbox.checked) {
             this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
+        }
+        if (this.enableEnhancedAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameEnhancedAnimations);
+        }
+        if (this.enableIdleAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameIdleAnimations);
         }
     }
 

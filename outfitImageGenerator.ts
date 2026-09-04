@@ -10,6 +10,8 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
     private idleAnimationCheckbox: HTMLInputElement;
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
     private enableTransparencyCheckbox: HTMLInputElement;
+    private enableEnhancedAnimationsCheckbox: HTMLInputElement;
+    private enableIdleAnimationsCheckbox: HTMLInputElement;
 
     private idleAnimation = true;
 
@@ -19,6 +21,8 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
         this.idleAnimationCheckbox = <HTMLInputElement>document.getElementById('idleAnimation');
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
         this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
+        this.enableEnhancedAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableEnhancedAnimations');
+        this.enableIdleAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableIdleAnimations');
     }
 
     afterSetClientVersion() {
@@ -27,6 +31,12 @@ class OutfitImageGenerator extends WebsiteImageGeneratorBase {
         }
         if (this.enableTransparencyCheckbox.checked) {
             this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
+        }
+        if (this.enableEnhancedAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameEnhancedAnimations);
+        }
+        if (this.enableIdleAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameIdleAnimations);
         }
     }
 

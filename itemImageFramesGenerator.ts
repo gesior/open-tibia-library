@@ -9,6 +9,8 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
     private onlyPickableCheckbox: HTMLInputElement;
     private forceEnableExtendedSpritesCheckbox: HTMLInputElement;
     private enableTransparencyCheckbox: HTMLInputElement;
+    private enableEnhancedAnimationsCheckbox: HTMLInputElement;
+    private enableIdleAnimationsCheckbox: HTMLInputElement;
     private useDatItemIdsAsImageIdsCheckbox: HTMLInputElement;
 
     private onlyPickable = true;
@@ -19,6 +21,8 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
         this.onlyPickableCheckbox = <HTMLInputElement>document.getElementById('onlyPickable');
         this.forceEnableExtendedSpritesCheckbox = <HTMLInputElement>document.getElementById('forceEnableExtendedSprites');
         this.enableTransparencyCheckbox = <HTMLInputElement>document.getElementById('enableTransparency');
+        this.enableEnhancedAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableEnhancedAnimations');
+        this.enableIdleAnimationsCheckbox = <HTMLInputElement>document.getElementById('enableIdleAnimations');
         this.useDatItemIdsAsImageIdsCheckbox = <HTMLInputElement>document.getElementById('useDatItemIdsAsImageIds');
     }
 
@@ -28,6 +32,12 @@ class ItemImageGenerator extends WebsiteImageGeneratorBase {
         }
         if (this.enableTransparencyCheckbox.checked) {
             this.client.enableFeature(GameFeature.GameSpritesAlphaChannel);
+        }
+        if (this.enableEnhancedAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameEnhancedAnimations);
+        }
+        if (this.enableIdleAnimationsCheckbox.checked) {
+            this.client.enableFeature(GameFeature.GameIdleAnimations);
         }
         this.otbRequired = !this.useDatItemIdsAsImageIdsCheckbox.checked;
     }

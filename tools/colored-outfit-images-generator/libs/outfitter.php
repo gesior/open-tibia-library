@@ -3,7 +3,7 @@
  * @author Kamil Karkus <kaker@wp.eu>
  * @author Gesior.pl <phoowned@wp.pl>
  * @copyright Copyright (c) 2012, Kamil Karkus
- * @version 4 - fixed rendering with invalid parameters
+ * @version 6 - fixed background transparency in GIFs
  */
 
 class Outfitter {
@@ -61,7 +61,7 @@ class Outfitter {
     ];
 
 	public static $data = [];
-	private static $transparentBackgroundColor = array(255, 255, 255);
+	private static $transparentBackgroundColor = array(255, 255, 255, 127);
 	public static $outfitPath;
 	public static $resizeAllOutfitsTo64px = false;
 
@@ -143,7 +143,8 @@ class Outfitter {
                 $image_template = imagecreatefrompng(self::$outfitPath . $outfit . '/' . $animation . '_' . $mountState . '_1_' . $direction . '_template.png');
             } else {
                 $image_template = imagecreatetruecolor(imagesx($image_outfit), imagesy($image_outfit));
-                $bgcolor = imagecolorallocate($image_template, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]);
+                $bgcolor = imagecolorallocatealpha($image_template, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2], self::$transparentBackgroundColor[3]);
+                imagefill($image_template, 0, 0, $bgcolor);
                 imagecolortransparent($image_template, $bgcolor);
 
                 imagealphablending($image_template, false);
@@ -199,14 +200,20 @@ class Outfitter {
 		} else {
 			$image_outfitT = imagecreatetruecolor($width, $height);
 		}
-		imagefill($image_outfitT, 0, 0, $bgcolor = imagecolorallocate($image_outfitT, self::$transparentBackgroundColor[0], self::$transparentBackgroundColor[1], self::$transparentBackgroundColor[2]));
+		
+		// Use a specific color for transparency (Magenta: 255, 0, 255)
+		$bgcolor = imagecolorallocate($image_outfitT, 255, 0, 255);
+		imagefill($image_outfitT, 0, 0, $bgcolor);
 
 		imagecopyresampled($image_outfitT, $image_outfit, imagesx($image_outfitT)-$width, imagesy($image_outfitT)-$height, 0, 0, $width, $height, $width, $height);
 
-		imagecolortransparent($image_outfitT, $bgcolor);
+		// Convert truecolor image to palette to fix GIF transparency loss issue
+		imagetruecolortopalette($image_outfitT, false, 255);
+		
+		// Get the exact transparent index and assign it
+		$transparentIndex = imagecolorclosest($image_outfitT, 255, 0, 255);
+		imagecolortransparent($image_outfitT, $transparentIndex);
 
-		imagealphablending($image_outfitT, false);
-		imagesavealpha($image_outfitT, true);
 		imagedestroy($image_outfit);
 		if (isset($image_template) && $image_template) {
 			imagedestroy($image_template);
