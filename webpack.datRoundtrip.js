@@ -1,13 +1,10 @@
 const path = require('path');
 
-let babelOptions = {
-  "presets": ["env"]
-};
-
 module.exports = {
+  mode: 'development',
   target: 'node',
   entry: {
-    datRoundtrip: ['babel-polyfill', './datRoundtrip.ts']
+    datRoundtrip: './datRoundtrip.ts'
   },
   output: {
     filename: '[name].js',
@@ -15,36 +12,17 @@ module.exports = {
   },
   module: {
     rules: [{
-      test: /\.ts(x?)$/,
+      test: /\.tsx?$/,
       exclude: /node_modules/,
-      use: [
-        {
-          loader: 'babel-loader',
-          options: babelOptions
-        },
-        {
-          loader: 'ts-loader',
-          options: {
-            configFile: 'tsconfig.datRoundtrip.json'
-          }
+      use: {
+        loader: 'ts-loader',
+        options: {
+          configFile: 'tsconfig.datRoundtrip.json'
         }
-      ]
-    }, {
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: [
-        {
-          loader: 'babel-loader',
-          options: babelOptions
-        }
-      ]
+      }
     }]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
-  },
-  node: {
-    __dirname: false,
-    __filename: false
+    extensions: ['.tsx', '.ts', '.js']
   }
 };
