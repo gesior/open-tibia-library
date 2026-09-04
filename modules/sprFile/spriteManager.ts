@@ -1,6 +1,5 @@
 import {InputFile} from "../fileHandlers/inputFile";
 import {Sprite} from "./sprite";
-import {g_resources} from "../resources";
 import {Log} from "../log";
 import {Client} from "../client";
 import {GameFeature} from "../constants/const";
@@ -16,11 +15,6 @@ export class SpriteManager {
 
     constructor(public m_client: Client) {
 
-    }
-
-    async loadSprFromUrl(url: string): Promise<boolean> {
-        let fin: InputFile = await g_resources.openUrl(url);
-        return this.loadSpr(fin);
     }
 
     loadSpr(spritesFile: InputFile): boolean {

@@ -50,11 +50,7 @@ function roundtripOne(dataDir: string, folderName: string): boolean {
     const client = new Client();
     client.setClientVersion(version);
     const datManager = new DatManager(client);
-    const loaded = datManager.loadDat(new InputFile(new DataView(
-        originalBuf.buffer,
-        originalBuf.byteOffset,
-        originalBuf.byteLength
-    )));
+    const loaded = datManager.loadDat(InputFile.fromUint8Array(original));
 
     if (!loaded) {
         console.log("FAIL  " + folderName + "  client=" + version + "  loadDat failed");
