@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack --config webpack.config.js --watch"
+    "watch": "webpack --config webpack.config.js --watch",
+    "test:dat-roundtrip": "webpack --config webpack.datRoundtrip.js && node js/datRoundtrip.js"
   },
   "author": "Gesior.pl (Jerzy Skalski)",
   "license": "MIT",

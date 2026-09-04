@@ -5,7 +5,7 @@ import {InputFile} from "../fileHandlers/inputFile";
 import {g_resources} from "../resources";
 import {OutputFile} from "../fileHandlers/outputFile";
 import {Client} from "../client";
-import {sortObjectByKey} from "../constants/helpers";
+import {SortedDatAttribute} from "../structures/sortedDatAttribute";
 
 export class DatManager {
     private static m_nullThingType = new DatThingType();
@@ -114,7 +114,7 @@ export class DatManager {
             fin.addU16(this.m_thingTypes[category].length - 1);
         }
 
-        const clientTranslationArray = this.getClientTranslationArray();
+        const clientTranslationArray = this.getSortedClientTranslationArray();
 
         for (let category = 0; category < DatThingCategory.ThingLastCategory; ++category) {
             let firstId = 1;
@@ -127,83 +127,145 @@ export class DatManager {
         return fin;
     }
 
-    getClientTranslationArray(): number[] {
-        let clientAttributesTranslator = {};
+    getClientTranslationArray(): any {
+        const version = this.m_client.getClientVersion();
+        const internalToClient: any = {};
+
         for (let thingAttr = 0; thingAttr < DatThingAttr.ThingLastAttr; ++thingAttr) {
             if (DatThingAttr[thingAttr] === undefined) {
                 continue;
             }
-            let clientDatAttribute = thingAttr;
-            if (this.m_client.getClientVersion() >= 1000) {
-                /* In 10.10+ all attributes from 16 and up were
-                 * incremented by 1 to make space for 16 as
-                 * "No Movement Animation" flag.
-                 */
-                if (thingAttr == DatThingAttr.ThingAttrNoMoveAnimation)
-                    clientDatAttribute = 16;
-                else if (thingAttr >= DatThingAttr.ThingAttrPickupable)
-                    clientDatAttribute += 1;
-            } else if (this.m_client.getClientVersion() >= 860) {
-                /* Default attribute values follow
-                 * the format of 8.6-9.86.
-                 * Therefore no changes here.
-                 */
-            } else if (this.m_client.getClientVersion() >= 780) {
-                /* In 7.80-8.54 all attributes from 8 and higher were
-                 * incremented by 1 to make space for 8 as
-                 * "Item Charges" flag.
-                 */
-                if (thingAttr == DatThingAttr.ThingAttrChargeable)
-                    clientDatAttribute = DatThingAttr.ThingAttrWritable;
-                else if (thingAttr >= DatThingAttr.ThingAttrWritable)
-                    clientDatAttribute += 1;
-            } else if (this.m_client.getClientVersion() >= 755) {
-                /* In 7.55-7.72 attributes 23 is "Floor Change". */
-                if (thingAttr == DatThingAttr.ThingAttrFloorChange)
-                    clientDatAttribute = 23
-            } else if (this.m_client.getClientVersion() >= 740) {
-                /* In 7.4-7.5 attribute "Ground Border" did not exist
-                 * attributes 1-15 have to be adjusted.
-                 * Several other changes in the format.
-                 */
-
-                if (thingAttr > 1 && thingAttr <= 16)
-                    thingAttr -= 1;
-                else if (thingAttr == DatThingAttr.ThingAttrLight)
-                    thingAttr = 16;
-                else if (thingAttr == DatThingAttr.ThingAttrFloorChange)
-                    thingAttr = 17;
-                else if (thingAttr == DatThingAttr.ThingAttrFullGround)
-                    thingAttr = 18;
-                else if (thingAttr == DatThingAttr.ThingAttrElevation)
-                    thingAttr = 19;
-                else if (thingAttr == DatThingAttr.ThingAttrDisplacement)
-                    thingAttr = 20;
-                else if (thingAttr == DatThingAttr.ThingAttrMinimapColor)
-                    thingAttr = 22;
-                else if (thingAttr == DatThingAttr.ThingAttrRotateable)
-                    thingAttr = 23;
-                else if (thingAttr == DatThingAttr.ThingAttrLyingCorpse)
-                    thingAttr = 24;
-                else if (thingAttr == DatThingAttr.ThingAttrHangable)
-                    thingAttr = 25;
-                else if (thingAttr == DatThingAttr.ThingAttrHookSouth)
-                    thingAttr = 26;
-                else if (thingAttr == DatThingAttr.ThingAttrHookEast)
-                    thingAttr = 27;
-                else if (thingAttr == DatThingAttr.ThingAttrAnimateAlways)
-                    thingAttr = 28;
-
-                /* "Multi Use" and "Force Use" are swapped */
-                if (thingAttr == DatThingAttr.ThingAttrMultiUse)
-                    clientDatAttribute = DatThingAttr.ThingAttrForceUse;
-                else if (thingAttr == DatThingAttr.ThingAttrForceUse)
-                    clientDatAttribute = DatThingAttr.ThingAttrMultiUse;
-            }
-            clientAttributesTranslator[clientDatAttribute] = thingAttr;
+            internalToClient[thingAttr] = thingAttr;
         }
 
-        return sortObjectByKey(clientAttributesTranslator);
+        if (version >= 1010) {
+            /* 10.10+: attributes from 16 up were incremented by 1 to make space
+             * for 16 as "No Movement Animation". Client 0xFE is USABLE (boolean).
+             */
+            internalToClient[DatThingAttr.ThingAttrNoMoveAnimation] = 16;
+            for (let thingAttr = DatThingAttr.ThingAttrPickupable; thingAttr <= DatThingAttr.ThingAttrBones; ++thingAttr) {
+                if (DatThingAttr[thingAttr] === undefined) {
+                    continue;
+                }
+                internalToClient[thingAttr] = thingAttr + 1;
+            }
+            internalToClient[DatThingAttr.ThingAttrChargeable] = 0xFE;
+        } else if (version >= 860) {
+            /* 8.60-10.09 follow the 8.6-9.86 client bytes (identity mapping). */
+        } else if (version >= 780) {
+            /* 7.80-8.54: attributes from 8 up incremented by 1 for "Item Charges". */
+            internalToClient[DatThingAttr.ThingAttrChargeable] = 8;
+            for (let thingAttr = DatThingAttr.ThingAttrWritable; thingAttr <= DatThingAttr.ThingAttrLook; ++thingAttr) {
+                internalToClient[thingAttr] = thingAttr + 1;
+            }
+            internalToClient[DatThingAttr.ThingAttrFloorChange] = 0x18;
+            // IgnoreLook is client 0x20; do not leave Cloth on that byte (Cloth has a u16 payload).
+            delete internalToClient[DatThingAttr.ThingAttrCloth];
+            delete internalToClient[DatThingAttr.ThingAttrMarket];
+            delete internalToClient[DatThingAttr.ThingAttrUsable];
+            delete internalToClient[DatThingAttr.ThingAttrWrapable];
+            delete internalToClient[DatThingAttr.ThingAttrUnwrapable];
+            delete internalToClient[DatThingAttr.ThingAttrTopEffect];
+            delete internalToClient[DatThingAttr.ThingAttrBones];
+        } else if (version >= 755) {
+            /* 7.55-7.72: client 23 is Floor Change. */
+            internalToClient[DatThingAttr.ThingAttrFloorChange] = 23;
+        } else if (version >= 740) {
+            /* 7.40-7.50: no Ground Border; MultiUse/ForceUse swapped vs modern enum. */
+            internalToClient[DatThingAttr.ThingAttrGround] = 0x00;
+            internalToClient[DatThingAttr.ThingAttrOnBottom] = 0x01;
+            internalToClient[DatThingAttr.ThingAttrOnTop] = 0x02;
+            internalToClient[DatThingAttr.ThingAttrContainer] = 0x03;
+            internalToClient[DatThingAttr.ThingAttrStackable] = 0x04;
+            internalToClient[DatThingAttr.ThingAttrMultiUse] = 0x05;
+            internalToClient[DatThingAttr.ThingAttrForceUse] = 0x06;
+            internalToClient[DatThingAttr.ThingAttrWritable] = 0x07;
+            internalToClient[DatThingAttr.ThingAttrWritableOnce] = 0x08;
+            internalToClient[DatThingAttr.ThingAttrFluidContainer] = 0x09;
+            internalToClient[DatThingAttr.ThingAttrSplash] = 0x0A;
+            internalToClient[DatThingAttr.ThingAttrNotWalkable] = 0x0B;
+            internalToClient[DatThingAttr.ThingAttrNotMoveable] = 0x0C;
+            internalToClient[DatThingAttr.ThingAttrBlockProjectile] = 0x0D;
+            internalToClient[DatThingAttr.ThingAttrNotPathable] = 0x0E;
+            internalToClient[DatThingAttr.ThingAttrPickupable] = 0x0F;
+            internalToClient[DatThingAttr.ThingAttrLight] = 0x10;
+            internalToClient[DatThingAttr.ThingAttrFloorChange] = 0x11;
+            internalToClient[DatThingAttr.ThingAttrFullGround] = 0x12;
+            internalToClient[DatThingAttr.ThingAttrElevation] = 0x13;
+            internalToClient[DatThingAttr.ThingAttrDisplacement] = 0x14;
+            internalToClient[DatThingAttr.ThingAttrMinimapColor] = 0x16;
+            internalToClient[DatThingAttr.ThingAttrRotateable] = 0x17;
+            internalToClient[DatThingAttr.ThingAttrLyingCorpse] = 0x18;
+            internalToClient[DatThingAttr.ThingAttrHangable] = 0x19;
+            internalToClient[DatThingAttr.ThingAttrHookSouth] = 0x1A;
+            internalToClient[DatThingAttr.ThingAttrHookEast] = 0x1B;
+            internalToClient[DatThingAttr.ThingAttrAnimateAlways] = 0x1C;
+            internalToClient[DatThingAttr.ThingAttrLensHelp] = 0x1D;
+        } else {
+            /* 7.10-7.30: like 7.40 but without hangable / hook flags. */
+            internalToClient[DatThingAttr.ThingAttrGround] = 0x00;
+            internalToClient[DatThingAttr.ThingAttrOnBottom] = 0x01;
+            internalToClient[DatThingAttr.ThingAttrOnTop] = 0x02;
+            internalToClient[DatThingAttr.ThingAttrContainer] = 0x03;
+            internalToClient[DatThingAttr.ThingAttrStackable] = 0x04;
+            internalToClient[DatThingAttr.ThingAttrMultiUse] = 0x05;
+            internalToClient[DatThingAttr.ThingAttrForceUse] = 0x06;
+            internalToClient[DatThingAttr.ThingAttrWritable] = 0x07;
+            internalToClient[DatThingAttr.ThingAttrWritableOnce] = 0x08;
+            internalToClient[DatThingAttr.ThingAttrFluidContainer] = 0x09;
+            internalToClient[DatThingAttr.ThingAttrSplash] = 0x0A;
+            internalToClient[DatThingAttr.ThingAttrNotWalkable] = 0x0B;
+            internalToClient[DatThingAttr.ThingAttrNotMoveable] = 0x0C;
+            internalToClient[DatThingAttr.ThingAttrBlockProjectile] = 0x0D;
+            internalToClient[DatThingAttr.ThingAttrNotPathable] = 0x0E;
+            internalToClient[DatThingAttr.ThingAttrPickupable] = 0x0F;
+            internalToClient[DatThingAttr.ThingAttrLight] = 0x10;
+            internalToClient[DatThingAttr.ThingAttrFloorChange] = 0x11;
+            internalToClient[DatThingAttr.ThingAttrFullGround] = 0x12;
+            internalToClient[DatThingAttr.ThingAttrElevation] = 0x13;
+            internalToClient[DatThingAttr.ThingAttrDisplacement] = 0x14;
+            internalToClient[DatThingAttr.ThingAttrMinimapColor] = 0x16;
+            internalToClient[DatThingAttr.ThingAttrRotateable] = 0x17;
+            internalToClient[DatThingAttr.ThingAttrLyingCorpse] = 0x18;
+            internalToClient[DatThingAttr.ThingAttrAnimateAlways] = 0x19;
+            internalToClient[DatThingAttr.ThingAttrLensHelp] = 0x1A;
+        }
+
+        const clientAttributesTranslator: any = {};
+        const internals = Object.keys(internalToClient);
+        for (let i = 0; i < internals.length; i++) {
+            const internalAttr = Number(internals[i]);
+            clientAttributesTranslator[internalToClient[internalAttr]] = internalAttr;
+        }
+        clientAttributesTranslator[DatThingAttr.ThingLastAttr] = DatThingAttr.ThingLastAttr;
+
+        return clientAttributesTranslator;
     }
 
+    getAttributesSortedAsInOfficialClient(): number[] {
+        const version = this.m_client.getClientVersion();
+        if (version < 740) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26];
+        } else if (version < 755) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29];
+        } else if (version < 780) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29, 30];
+        } else if (version < 860) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
+        } else if (version < 1010) {
+            return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33];
+        }
+        return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 254];
+    }
+    getSortedClientTranslationArray(): SortedDatAttribute[] {
+        let sortedAsInOfficialClient = this.getAttributesSortedAsInOfficialClient();
+
+        let sortedDatAttributes = [];
+        const clientAttributeTranslator: any = this.getClientTranslationArray();
+        for (let sortId of sortedAsInOfficialClient) {
+            sortedDatAttributes.push(new SortedDatAttribute(sortId, clientAttributeTranslator[sortId]));
+        }
+
+        return sortedDatAttributes;
+    }
 }
