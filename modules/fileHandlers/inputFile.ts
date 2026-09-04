@@ -11,4 +11,8 @@ export class InputFile extends FileStream {
         this.offset = 0;
     }
 
+    static fromUint8Array(bytes: Uint8Array): InputFile {
+        return new InputFile(new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+    }
+
 }

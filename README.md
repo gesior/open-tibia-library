@@ -1,21 +1,66 @@
 # Open Tibia Library
 
-Library to manipulate files used by OTS and OTClient. Written in TypeScript.
+Library to read and write DAT, SPR and OTB files used by OTS and OTClient. Written in TypeScript.
 
-Base for OT Item Editor and Map Editor.
+Works in Node and in the browser. The library accepts and returns bytes (`Uint8Array` / `DataView`). Loading files from disk or from a file picker is done by the caller.
 
-**How to run example (item image generator)?**
-1. Google 'install nodejs' and follow instruction for installation with system integration.
-   
-   It will install `node` and `npm` in your system.
-2. Open folder with OpenTibiaLibrary in terminal (cmd).
-3. Type:
-    ```
-    npm install
-    ```
-4. Type:
-    ```
-    npm run-script build
-    ```
-5. After build there will appear folder `js`.
-6. Open `itemImageGenerator.html` in webbrowser (tested on Chrome). Done.
+Browser tools that use this library (item/outfit image generators, OTB editor) live in a separate project: [open-tibia-tools](https://github.com/gesior/open-tibia-tools).
+
+The unscoped npm package `open-tibia-library` is an unofficial copy published by someone else. Install this scoped package instead.
+
+## Install
+
+From npm:
+
+```
+npm install @gesior/open-tibia-library
+```
+
+The published package includes compiled `dist/` (`main` / `types` point there).
+
+## Node (command line)
+
+```js
+const fs = require("fs");
+const {Client, DatManager, InputFile} = require("@gesior/open-tibia-library");
+
+const bytes = new Uint8Array(fs.readFileSync("Tibia.dat"));
+const client = new Client();
+client.setClientVersion(860);
+
+const datManager = new DatManager(client);
+if (!datManager.loadDat(InputFile.fromUint8Array(bytes))) {
+    throw new Error("Failed to load DAT");
+}
+
+const saved = datManager.saveDat().getUint8Array();
+fs.writeFileSync("Tibia-saved.dat", Buffer.from(saved));
+```
+
+`InputFile.fromUint8Array` uses `byteOffset` / `byteLength`, so it works with a Node `Buffer`.
+
+## Browser
+
+```js
+import {Client, DatManager, InputFile} from "@gesior/open-tibia-library";
+
+const file = document.getElementById("dat").files[0];
+const reader = new FileReader();
+reader.onload = function (event) {
+    const client = new Client();
+    client.setClientVersion(860);
+    const datManager = new DatManager(client);
+    datManager.loadDat(InputFile.fromUint8Array(new Uint8Array(event.target.result)));
+};
+reader.readAsArrayBuffer(file);
+```
+
+The same `loadDat` / `loadSpr` / `loadOtb` and `saveDat` / `saveSpr` / `saveOtb` API is used in both environments.
+
+## DAT roundtrip test
+
+With client files in `data/dat_and_spr/<version>/Tibia.dat`:
+
+```
+npm run test:dat-roundtrip
+```

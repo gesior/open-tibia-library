@@ -1,6 +1,5 @@
 import {Log} from "../log";
 import {InputFile} from "../fileHandlers/inputFile";
-import {g_resources} from "../resources";
 import {OtbItemType} from "./otbItemType";
 import {Client} from "../client";
 import {OutputFile} from "../fileHandlers/outputFile";
@@ -86,11 +85,6 @@ export class OtbManager {
             newDescription += String.fromCharCode(0);
         }
         this.m_otbDescription = newDescription;
-    }
-
-    async loadOtbFromUrl(url: string): Promise<boolean> {
-        let fin: InputFile = await g_resources.openUrl(url);
-        return this.loadOtb(fin);
     }
 
     loadOtb(fin: InputFile): boolean {

@@ -1,35 +1,49 @@
 {
-  "name": "open-tibia-library",
-  "version": "0.1.8",
-  "description": "OpenTibiaLibrary",
+  "name": "@gesior/open-tibia-library",
+  "version": "0.2.0",
+  "description": "Library to read and write Tibia/OTS DAT, SPR and OTB files",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js",
-    "watch": "webpack --config webpack.config.js --watch",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test:dat-roundtrip": "webpack --config webpack.datRoundtrip.js && node js/datRoundtrip.js"
   },
   "author": "Gesior.pl (Jerzy Skalski)",
   "license": "MIT",
+  "homepage": "https://github.com/gesior/open-tibia-library#readme",
+  "bugs": {
+    "url": "https://github.com/gesior/open-tibia-library/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/gesior/open-tibia-library.git"
   },
+  "keywords": [
+    "tibia",
+    "ots",
+    "otclient",
+    "dat",
+    "spr",
+    "otb"
+  ],
   "devDependencies": {
-    "@types/jszip": "*",
-    "@types/node": "*",
+    "@types/node": "13.9.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.0",
     "babel-polyfill": "^6.3.0",
     "babel-preset-env": "^1.7.0",
-    "copy-webpack-plugin": "^4.0",
     "path": "*",
     "ts-loader": "^3.0",
     "typescript": "^2.6",
-    "webpack": "^3.12",
-    "webpack-cli": "^3.3"
-  },
-  "dependencies": {
-    "gif.js": "^0.2.0",
-    "jszip": "^3.2.2"
+    "webpack": "^3.12"
   }
 }

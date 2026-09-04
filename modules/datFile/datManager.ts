@@ -2,7 +2,6 @@ import {DatThingType} from "./datThingType";
 import {DatThingAttr, DatThingCategory} from "../constants/const";
 import {Log} from "../log";
 import {InputFile} from "../fileHandlers/inputFile";
-import {g_resources} from "../resources";
 import {OutputFile} from "../fileHandlers/outputFile";
 import {Client} from "../client";
 import {SortedDatAttribute} from "../structures/sortedDatAttribute";
@@ -65,11 +64,6 @@ export class DatManager {
 
     getContentRevision() {
         throw this.m_contentRevision;
-    }
-
-    async loadDatFromUrl(url: string): Promise<boolean> {
-        let fin: InputFile = await g_resources.openUrl(url);
-        return this.loadDat(fin);
     }
 
     loadDat(fin: InputFile): boolean {
