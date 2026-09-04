@@ -26,76 +26,65 @@ export class DatThingType {
     private m_elevation: number = 0;
 
     private m_frameGroups: FrameGroup[] = [];
+    private m_attrOrder: SortedDatAttribute[] = [];
+    private m_frameGroupOrder: number[] = [];
 
     serialize(fin: OutputFile, category: DatThingCategory, client: Client, clientAttributeTranslator: SortedDatAttribute[]) {
-        for (let sortedDatAttribute of clientAttributeTranslator) {
-            let clientDatAttr = sortedDatAttribute.clientDatAttr;
-            let thingAttr = sortedDatAttribute.thingAttr;
-            if (!this.hasAttr(thingAttr))
-                continue;
-
-            fin.addU8(clientDatAttr);
-            switch (thingAttr) {
-                case DatThingAttr.ThingAttrDisplacement: {
-                    if (client.getClientVersion() >= 755) {
-                        fin.addU16(this.m_displacement.x);
-                        fin.addU16(this.m_displacement.y);
-                    }
-                    break;
+        const writtenThingAttrs = {};
+        if (this.m_attrOrder.length > 0) {
+            for (let i = 0; i < this.m_attrOrder.length; i++) {
+                const entry = this.m_attrOrder[i];
+                this.writeAttribute(fin, client, entry.clientDatAttr, entry.thingAttr);
+                if (entry.thingAttr !== undefined && entry.thingAttr !== null) {
+                    writtenThingAttrs[entry.thingAttr] = true;
                 }
-                case DatThingAttr.ThingAttrLight: {
-                    const light: Light = this.m_attribs.get(thingAttr);
-                    fin.addU16(light.intensity);
-                    fin.addU16(light.color);
-                    break;
-                }
-                case DatThingAttr.ThingAttrMarket: {
-                    const market: MarketData = this.m_attribs.get(thingAttr);
-                    fin.addU16(market.category);
-                    fin.addU16(market.tradeAs);
-                    fin.addU16(market.showAs);
-                    fin.addString(market.name);
-                    fin.addU16(market.restrictVocation);
-                    fin.addU16(market.requiredLevel);
-                    break;
-                }
-                case DatThingAttr.ThingAttrBones: { // 'Oen44' OTCv8 extra parameter for Wings, 8x U16
-                    const bones: BonesData = this.m_attribs.get(thingAttr);
-                    fin.addU16(bones.north_x);
-                    fin.addU16(bones.north_y);
-                    fin.addU16(bones.south_x);
-                    fin.addU16(bones.south_y);
-                    fin.addU16(bones.east_x);
-                    fin.addU16(bones.east_y);
-                    fin.addU16(bones.west_x);
-                    fin.addU16(bones.west_y);
-                    break;
-                }
-                case DatThingAttr.ThingAttrUsable:
-                case DatThingAttr.ThingAttrElevation:
-                case DatThingAttr.ThingAttrGround:
-                case DatThingAttr.ThingAttrWritable:
-                case DatThingAttr.ThingAttrWritableOnce:
-                case DatThingAttr.ThingAttrMinimapColor:
-                case DatThingAttr.ThingAttrCloth:
-                case DatThingAttr.ThingAttrLensHelp:
-                    fin.addU16(this.m_attribs.get(thingAttr));
-                    break;
-                default:
-                    break;
             }
         }
+
+        for (let i = 0; i < clientAttributeTranslator.length; i++) {
+            const sortedDatAttribute = clientAttributeTranslator[i];
+            const thingAttr = sortedDatAttribute.thingAttr;
+            if (thingAttr === undefined || thingAttr === null) {
+                continue;
+            }
+            if (writtenThingAttrs[thingAttr]) {
+                continue;
+            }
+            if (!this.hasAttr(thingAttr)) {
+                continue;
+            }
+            this.writeAttribute(fin, client, sortedDatAttribute.clientDatAttr, thingAttr);
+            writtenThingAttrs[thingAttr] = true;
+        }
+
         fin.addU8(DatThingAttr.ThingLastAttr);
 
-        let hasFrameGroups = (category == DatThingCategory.ThingCategoryCreature && client.getFeature(GameFeature.GameIdleAnimations));
-        if (hasFrameGroups)
-            fin.addU8(this.m_frameGroups.length);
+        const hasFrameGroups = (category == DatThingCategory.ThingCategoryCreature && client.getFeature(GameFeature.GameIdleAnimations));
+        let groupTypes = this.m_frameGroupOrder;
+        if (groupTypes.length === 0) {
+            groupTypes = [];
+            for (let key in this.m_frameGroups) {
+                if (this.m_frameGroups[key]) {
+                    groupTypes.push(Number(key));
+                }
+            }
+        }
 
-        for (let frameGroupType in this.m_frameGroups) {
-            if (hasFrameGroups)
-                fin.addU8(Number(frameGroupType));
+        if (hasFrameGroups) {
+            fin.addU8(groupTypes.length);
+        }
 
+        for (let gi = 0; gi < groupTypes.length; gi++) {
+            const frameGroupType = groupTypes[gi];
             const frameGroup = this.m_frameGroups[frameGroupType];
+            if (!frameGroup) {
+                continue;
+            }
+
+            if (hasFrameGroups) {
+                fin.addU8(frameGroupType);
+            }
+
             fin.addU8(frameGroup.m_size.width());
             fin.addU8(frameGroup.m_size.height());
 
@@ -124,23 +113,80 @@ export class DatThingType {
         }
     }
 
+    private writeAttribute(fin: OutputFile, client: Client, clientDatAttr: number, thingAttr: number) {
+        fin.addU8(clientDatAttr);
+        switch (thingAttr) {
+            case DatThingAttr.ThingAttrDisplacement: {
+                if (client.getClientVersion() >= 755) {
+                    fin.addU16(this.m_displacement.x);
+                    fin.addU16(this.m_displacement.y);
+                }
+                break;
+            }
+            case DatThingAttr.ThingAttrLight: {
+                const light: Light = this.m_attribs.get(thingAttr);
+                fin.addU16(light.intensity);
+                fin.addU16(light.color);
+                break;
+            }
+            case DatThingAttr.ThingAttrMarket: {
+                const market: MarketData = this.m_attribs.get(thingAttr);
+                fin.addU16(market.category);
+                fin.addU16(market.tradeAs);
+                fin.addU16(market.showAs);
+                fin.addString(market.name);
+                fin.addU16(market.restrictVocation);
+                fin.addU16(market.requiredLevel);
+                break;
+            }
+            case DatThingAttr.ThingAttrBones: {
+                const bones: BonesData = this.m_attribs.get(thingAttr);
+                fin.addU16(bones.north_x);
+                fin.addU16(bones.north_y);
+                fin.addU16(bones.south_x);
+                fin.addU16(bones.south_y);
+                fin.addU16(bones.east_x);
+                fin.addU16(bones.east_y);
+                fin.addU16(bones.west_x);
+                fin.addU16(bones.west_y);
+                break;
+            }
+            case DatThingAttr.ThingAttrUsable:
+            case DatThingAttr.ThingAttrElevation:
+            case DatThingAttr.ThingAttrGround:
+            case DatThingAttr.ThingAttrWritable:
+            case DatThingAttr.ThingAttrWritableOnce:
+            case DatThingAttr.ThingAttrMinimapColor:
+            case DatThingAttr.ThingAttrCloth:
+            case DatThingAttr.ThingAttrLensHelp:
+                fin.addU16(this.m_attribs.get(thingAttr));
+                break;
+            default:
+                break;
+        }
+    }
+
     unserialize(clientId: number, category: DatThingCategory, fin: InputFile, client: Client, clientTranslationArray) {
         this.m_null = false;
         this.m_id = clientId;
         this.m_category = category;
+        this.m_attrOrder = [];
+        this.m_frameGroupOrder = [];
 
         let count = 0;
         let attr = -1;
         let done = false;
         for (let i = 0; i < DatThingAttr.ThingLastAttr; ++i) {
             count++;
-            attr = fin.getU8();
-            if (attr == DatThingAttr.ThingLastAttr) {
+            const clientByte = fin.getU8();
+            attr = clientByte;
+            if (clientByte == DatThingAttr.ThingLastAttr) {
                 done = true;
                 break;
             }
 
-            attr = clientTranslationArray[attr];
+            attr = clientTranslationArray[clientByte];
+            this.m_attrOrder.push(new SortedDatAttribute(clientByte, attr));
             switch (attr) {
                 case DatThingAttr.ThingAttrDisplacement: {
                     this.m_displacement = new Point(0, 0);
@@ -200,7 +246,9 @@ export class DatThingType {
                     this.m_attribs.set(attr, fin.getU16());
                     break;
                 default:
-                    this.m_attribs.set(attr, true);
+                    if (attr !== undefined && attr !== null) {
+                        this.m_attribs.set(attr, true);
+                    }
                     break;
             }
         }
@@ -215,6 +263,7 @@ export class DatThingType {
             let frameGroupType = (category == DatThingCategory.ThingCategoryCreature) ? FrameGroupType.FrameGroupMoving : FrameGroupType.FrameGroupIdle;
             if (hasFrameGroups)
                 frameGroupType = fin.getU8();
+            this.m_frameGroupOrder.push(frameGroupType);
 
             const frameGroup = new FrameGroup();
 
