@@ -1,5 +1,5 @@
 {
-  "name": "@gesior/open-tibia-library",
+  "name": "open-tibia-library",
   "version": "0.2.1",
   "description": "Library to read and write Tibia/OTS DAT, SPR and OTB files",
   "main": "dist/index.js",
